@@ -17,14 +17,16 @@ namespace ForenSync_Console_App.CaseManagement
             Console.Clear();
             AsciiTitle.Render("ForenSync");
 
-            string caseId = GenerateCaseId();
-            Console.WriteLine($"🆕 Starting New Case: {caseId}\n");
+            Console.WriteLine("🆕 Starting New Case\n");
 
             Console.Write("Enter Jurisdiction/Department: ");
             string jurisdiction = Console.ReadLine();
 
             Console.Write("Enter Notes (optional): ");
             string notes = Console.ReadLine();
+
+            // Generate Case ID after inputs to match timestamp
+            string caseId = GenerateCaseId();
 
             Console.WriteLine("\n────────────────────────────────────────────");
             Console.WriteLine("📋 Case Summary:");
@@ -36,7 +38,7 @@ namespace ForenSync_Console_App.CaseManagement
             Console.WriteLine($"Role            : Administrator");
             Console.WriteLine("────────────────────────────────────────────\n");
 
-            CreateCaseFolder(caseId, jurisdiction, notes, userId);
+            CreateCaseFolder(caseId, jurisdiction, notes);
 
             Console.WriteLine("✅ Case folder created. Proceeding to main menu...\n");
         }
@@ -47,16 +49,18 @@ namespace ForenSync_Console_App.CaseManagement
             return $"CASE_{timestamp}";
         }
 
-        private static void CreateCaseFolder(string caseId, string jurisdiction, string notes, string userId)
+        private static void CreateCaseFolder(string caseId, string jurisdiction, string notes)
         {
-            string basePath = Path.Combine(Directory.GetCurrentDirectory(), "Cases");
+            string basePath = Path.Combine(AppContext.BaseDirectory, "Cases");
             string casePath = Path.Combine(basePath, caseId);
             string evidencePath = Path.Combine(casePath, "Evidence");
 
-            Directory.CreateDirectory(evidencePath);
+            try
+            {
+                Directory.CreateDirectory(evidencePath);
 
-            string summaryPath = Path.Combine(casePath, "summary.txt");
-            string summaryContent = $@"
+                string summaryPath = Path.Combine(casePath, "summary.txt");
+                string summaryContent = $@"
 Case ID       : {caseId}
 Jurisdiction  : {jurisdiction}
 Notes         : {(string.IsNullOrWhiteSpace(notes) ? "None" : notes)}
@@ -65,8 +69,14 @@ Role          : Administrator
 Created At    : {DateTime.Now}
 ";
 
-            File.WriteAllText(summaryPath, summaryContent.Trim());
+                File.WriteAllText(summaryPath, summaryContent.Trim());
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"❌ Error creating case folder or summary: {ex.Message}");
+                Console.ResetColor();
+            }
         }
     }
-
 }
