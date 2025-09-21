@@ -43,6 +43,8 @@ namespace ForenSync_Console_App.CaseManagement
             SaveToDatabase(caseId, jurisdiction, notes, userId, casePath);
 
             Console.WriteLine("✅ Case folder created. Proceeding to main menu...\n");
+            System.Threading.Thread.Sleep(3000); // Pause for 3 seconds
+            MainMenu.Show(caseId, true);
         }
 
         // Generates a unique case ID based on timestamp
