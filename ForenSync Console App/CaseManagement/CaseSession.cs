@@ -5,13 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ForenSync_Console_App.UI;
-
-using System;
+using ForenSync_Console_App.Data;
+using Microsoft.Data.Sqlite;
 
 namespace ForenSync_Console_App.CaseManagement
 {
     public static class CaseSession
     {
+        // Starts a new case session
         public static void StartNewCase(string userId)
         {
             Console.Clear();
@@ -38,18 +39,21 @@ namespace ForenSync_Console_App.CaseManagement
             Console.WriteLine($"Role            : Administrator");
             Console.WriteLine("────────────────────────────────────────────\n");
 
-            CreateCaseFolder(caseId, jurisdiction, notes);
+            string casePath = CreateCaseFolder(caseId, jurisdiction, notes);
+            SaveToDatabase(caseId, jurisdiction, notes, userId, casePath);
 
             Console.WriteLine("✅ Case folder created. Proceeding to main menu...\n");
         }
 
+        // Generates a unique case ID based on timestamp
         private static string GenerateCaseId()
         {
             string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             return $"CASE_{timestamp}";
         }
 
-        private static void CreateCaseFolder(string caseId, string jurisdiction, string notes)
+        // Creates case folder and summary file
+        private static string CreateCaseFolder(string caseId, string jurisdiction, string notes)
         {
             string basePath = Path.Combine(AppContext.BaseDirectory, "Cases");
             string casePath = Path.Combine(basePath, caseId);
@@ -77,6 +81,34 @@ Created At    : {DateTime.Now}
                 Console.WriteLine($"❌ Error creating case folder or summary: {ex.Message}");
                 Console.ResetColor();
             }
+
+            return casePath;
+
         }
+
+        // Saves case details to database
+        private static void SaveToDatabase(string caseId, string jurisdiction, string notes, string userId, string casePath)
+        {
+            string dbPath = Path.Combine(AppContext.BaseDirectory, "forensync.db");
+
+            using var connection = new SqliteConnection($"Data Source={dbPath}");
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText = @"
+        INSERT INTO case_logs (case_id, jurisdiction, user_id, notes, date, case_path)
+        VALUES ($id, $jurisdiction, $userId, $notes, $date, $path);
+    ";
+
+            command.Parameters.AddWithValue("$id", caseId);
+            command.Parameters.AddWithValue("$jurisdiction", jurisdiction);
+            command.Parameters.AddWithValue("$userId", userId);
+            command.Parameters.AddWithValue("$notes", string.IsNullOrWhiteSpace(notes) ? "None" : notes);
+            command.Parameters.AddWithValue("$date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            command.Parameters.AddWithValue("$path", casePath);
+
+            command.ExecuteNonQuery();
+        }
+
     }
 }

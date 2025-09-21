@@ -1,9 +1,10 @@
-﻿using System;
+﻿using ForenSync_Console_App.CaseManagement;
+using ForenSync_Console_App.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ForenSync_Console_App.CaseManagement;
 
 namespace ForenSync_Console_App.UI
 {
@@ -24,12 +25,12 @@ namespace ForenSync_Console_App.UI
 
             Console.WriteLine("\nAuthenticating...\n");
 
-            if (userId == "admin" && password == "admin")
+            if (UserAuthenticator.ValidateUser(userId, password))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("✅ Login successful!\n");
                 Console.ResetColor();
-                ShowSessionPrompt();
+                ShowSessionPrompt(userId);
             }
             else
             {
@@ -62,7 +63,7 @@ namespace ForenSync_Console_App.UI
             return password;
         }
 
-        private static void ShowSessionPrompt()
+        private static void ShowSessionPrompt(string userId)
         {
             Console.WriteLine("────────────────────────────────────────────");
             Console.WriteLine("🧭 Session Options:");
@@ -76,7 +77,7 @@ namespace ForenSync_Console_App.UI
 
             if (choice == "1")
             {
-                CaseManagement.CaseSession.StartNewCase("admin");
+                CaseManagement.CaseSession.StartNewCase(userId); // ✅ dynamic
             }
 
             Console.WriteLine($"\nYou selected option {choice}. Proceeding...\n");
