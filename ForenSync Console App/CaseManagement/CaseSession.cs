@@ -21,7 +21,7 @@ namespace ForenSync_Console_App.CaseManagement
             Console.WriteLine("🆕 Starting New Case\n");
 
             Console.Write("Enter Jurisdiction/Department: ");
-            string jurisdiction = Console.ReadLine();
+            string department = Console.ReadLine();
 
             Console.Write("Enter Notes (optional): ");
             string notes = Console.ReadLine();
@@ -33,18 +33,18 @@ namespace ForenSync_Console_App.CaseManagement
             Console.WriteLine("📋 Case Summary:");
             Console.WriteLine("────────────────────────────────────────────");
             Console.WriteLine($"Case ID         : {caseId}");
-            Console.WriteLine($"Jurisdiction    : {jurisdiction}");
+            Console.WriteLine($"Department    : {department}");
             Console.WriteLine($"Notes           : {(string.IsNullOrWhiteSpace(notes) ? "None" : notes)}");
             Console.WriteLine($"User            : John Dela Cruz");
             Console.WriteLine($"Role            : Administrator");
             Console.WriteLine("────────────────────────────────────────────\n");
 
-            string casePath = CreateCaseFolder(caseId, jurisdiction, notes);
-            SaveToDatabase(caseId, jurisdiction, notes, userId, casePath);
+            string casePath = CreateCaseFolder(caseId, department, notes);
+            SaveToDatabase(caseId, department, notes, userId, casePath);
 
             Console.WriteLine("✅ Case folder created. Proceeding to main menu...\n");
             System.Threading.Thread.Sleep(3000); // Pause for 3 seconds
-            MainMenu.Show(caseId, true);
+            MainMenu.Show(caseId, userId, true);
         }
 
         // Generates a unique case ID based on timestamp
@@ -55,7 +55,7 @@ namespace ForenSync_Console_App.CaseManagement
         }
 
         // Creates case folder and summary file
-        private static string CreateCaseFolder(string caseId, string jurisdiction, string notes)
+        private static string CreateCaseFolder(string caseId, string department, string notes)
         {
             string basePath = Path.Combine(AppContext.BaseDirectory, "Cases");
             string casePath = Path.Combine(basePath, caseId);
@@ -68,7 +68,7 @@ namespace ForenSync_Console_App.CaseManagement
                 string summaryPath = Path.Combine(casePath, "summary.txt");
                 string summaryContent = $@"
                     Case ID       : {caseId}
-                    Jurisdiction  : {jurisdiction}
+                    Department    : {department}
                     Notes         : {(string.IsNullOrWhiteSpace(notes) ? "None" : notes)}
                     User          : John Dela Cruz
                     Role          : Administrator
@@ -89,7 +89,7 @@ namespace ForenSync_Console_App.CaseManagement
         }
 
         // Saves case details to database
-        private static void SaveToDatabase(string caseId, string jurisdiction, string notes, string userId, string casePath)
+        private static void SaveToDatabase(string caseId, string department, string notes, string userId, string casePath)
         {
             string dbPath = Path.Combine(AppContext.BaseDirectory, "forensync.db");
 
@@ -98,12 +98,12 @@ namespace ForenSync_Console_App.CaseManagement
 
             var command = connection.CreateCommand();
             command.CommandText = @"
-        INSERT INTO case_logs (case_id, jurisdiction, user_id, notes, date, case_path)
-        VALUES ($id, $jurisdiction, $userId, $notes, $date, $path);
+        INSERT INTO case_logs (case_id, department, user_id, notes, date, case_path)
+        VALUES ($id, $department, $userId, $notes, $date, $path);
     ";
 
             command.Parameters.AddWithValue("$id", caseId);
-            command.Parameters.AddWithValue("$jurisdiction", jurisdiction);
+            command.Parameters.AddWithValue("$department", department);
             command.Parameters.AddWithValue("$userId", userId);
             command.Parameters.AddWithValue("$notes", string.IsNullOrWhiteSpace(notes) ? "None" : notes);
             command.Parameters.AddWithValue("$date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));

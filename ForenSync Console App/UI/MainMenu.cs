@@ -12,7 +12,7 @@ namespace ForenSync_Console_App.UI
 {
     public static class MainMenu
     {
-        public static void Show(string caseId, bool isNewCase)
+        public static void Show(string caseId, string userId, bool isNewCase)
         {
             Console.Clear();
             AsciiTitle.Render("ForenSync");
@@ -100,27 +100,27 @@ namespace ForenSync_Console_App.UI
             switch (choice)
             {
                 case "🧭 Case Operations":
-                    CaseOperations.Show(caseId, isNewCase);
+                    CaseOperations.Show(caseId, userId, isNewCase);
                     break;
 
                 case "🛠️ Tools":
-                    Tools.Show(caseId, isNewCase);
+                    Tools.Show(caseId, userId, isNewCase);
                     break;
 
                 case "💻 Device Info":
-                    DeviceInfo.Show(caseId, isNewCase);
+                    DeviceInfo.Show(caseId, userId, isNewCase);
                     break;
 
                 case "📜 Acquisition History & Chain of Custody":
-                    AcquisitionHistory.Show(caseId, isNewCase);
+                    AcquisitionHistory.Show(caseId, userId, isNewCase);
                     break;
 
                 case "👤 User Management":
-                    UserManagement.Show(caseId, isNewCase);
+                    UserManagement.Show(caseId, userId, isNewCase);
                     break;
 
                 case "❓ Help":
-                    Help.Show(caseId, isNewCase);
+                    Help.Show(caseId, userId, isNewCase);
                     break;
 
                 // Add other cases later

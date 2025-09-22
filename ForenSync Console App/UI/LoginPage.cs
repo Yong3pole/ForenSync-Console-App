@@ -142,7 +142,7 @@ namespace ForenSync_Console_App.UI
                     return;
 
                 case "⏭️ Skip case setup and proceed to main menu":
-                    MainMenu.Show(null, false);
+                    MainMenu.Show(null, userId, false);
                     break;
             }
 

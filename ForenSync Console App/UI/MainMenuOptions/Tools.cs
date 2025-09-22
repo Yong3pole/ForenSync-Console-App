@@ -10,7 +10,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 {
     public static class Tools
     {
-        public static void Show(string caseId, bool isNewCase)
+        public static void Show(string caseId, string userId, bool isNewCase)
         {
             Console.Clear();
             AsciiTitle.Render("ForenSync");
@@ -103,7 +103,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 
                 case "🔙 Back to Main Menu":
                     // bool isNewCase = true; // for the Main Menu to show the summary if returning from Tools
-                    MainMenu.Show(caseId, isNewCase);
+                    MainMenu.Show(caseId, userId, false);
                     break;
 
                 default:

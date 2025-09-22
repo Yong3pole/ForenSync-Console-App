@@ -10,7 +10,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 {
     public static class Help
     {
-        public static void Show(string caseId, bool isNewCase)
+        public static void Show(string caseId, string userId, bool isNewCase)
         {
             Console.Clear();
             AsciiTitle.Render("ForenSync");
@@ -95,7 +95,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                     break;
                 case "🔙 Back to Main Menu":
                     //bool isNewCase = true; // for the Main Menu to show the summary if returning from Help
-                    MainMenu.Show(caseId, isNewCase);
+                    MainMenu.Show(caseId, userId, false);
                     break;
                 default:
                     AnsiConsole.MarkupLine("[red]Invalid choice. Please try again.[/]");

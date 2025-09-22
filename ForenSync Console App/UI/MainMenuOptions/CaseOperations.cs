@@ -11,7 +11,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
     public static class CaseOperations
     {
    
-        public static void Show(string caseId, bool isNewCase) // isNewCase indicates if this is a new case or not
+        public static void Show(string caseId, string userId, bool isNewCase) // isNewCase indicates if this is a new case or not
         {
             Console.Clear();
             AsciiTitle.Render("ForenSync");
@@ -97,7 +97,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                 {
                     case "📁 View Cases":
                         AnsiConsole.MarkupLine($"[yellow]→ Viewing cases for [bold]{caseId}[/][/]");
-                        // TODO: Call CaseViewer.Show(caseId);
+                        //CaseOperations_SubMenu.CaseViewer.Show(caseId);
                         break;
 
                     case "💽 View Mounted Drives":
@@ -117,7 +117,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 
                     case "🔙 Back to Main Menu":
                         //bool isNewCase = true; // for the Main Menu to still show the summary if returning from a new case
-                        MainMenu.Show(caseId, isNewCase);
+                        MainMenu.Show(caseId, userId, isNewCase);
                         break;
 
                     default:
@@ -156,7 +156,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                 if (selected.Contains("(disabled)"))
                 {
                     AnsiConsole.MarkupLine("[red]That option is disabled for existing cases.[/]");
-                    CaseOperations.Show(caseId, false); // Re-render menu
+                    CaseOperations.Show(caseId, userId, false); // Re-render menu
                     return;
                 }
 
@@ -164,7 +164,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                 {
                     case "📁 View Cases":
                         AnsiConsole.MarkupLine($"[yellow]→ Viewing cases for [bold]{caseId}[/][/]");
-                        // TODO: CaseViewer.Show(caseId);
+                        CaseOperations_SubMenu.CaseViewer.Show(caseId);
                         break;
 
                     case "💽 View Mounted Drives":
@@ -172,8 +172,13 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                         // TODO: DriveScanner.Show(caseId);
                         break;
 
+                    case "🧠 Capture Memory":
+                        AnsiConsole.MarkupLine("[yellow]→ Launching memory capture...[/]");
+                        CaseOperations_SubMenu.CaptureMemory.Run(caseId, userId);
+                        break;
+
                     case "🔙 Back to Main Menu":
-                        MainMenu.Show(caseId, false);
+                        MainMenu.Show(caseId, userId, false);
                         break;
                 }
             }
