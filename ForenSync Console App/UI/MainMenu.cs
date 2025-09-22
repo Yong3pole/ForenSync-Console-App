@@ -70,6 +70,26 @@ namespace ForenSync_Console_App.UI
                     CaseOperations.Show(caseId);
                     break;
 
+                case "🛠️ Tools":
+                    Tools.Show(caseId);
+                    break;
+
+                case "💻 Device Info":
+                    DeviceInfo.Show(caseId);
+                    break;
+
+                case "📜 Acquisition History & Chain of Custody":
+                    AcquisitionHistory.Show(caseId);
+                    break;
+
+                case "👤 User Management":
+                    UserManagement.Show(caseId);
+                    break;
+
+                case "❓ Help":
+                    Help.Show(caseId);
+                    break;
+
                 // Add other cases later
                 default:
                     AnsiConsole.MarkupLine($"[red]→ Option not yet implemented: {choice}[/]");

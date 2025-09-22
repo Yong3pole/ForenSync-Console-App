@@ -12,7 +12,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
         public static void Show(string caseId)
         {
             Console.Clear();
-            AsciiTitle.Render("Case Operations");
+            AsciiTitle.Render("ForenSync");
 
             AnsiConsole.MarkupLine("[blue]🔍 Main Menu > Case Operations [/]");
             AnsiConsole.MarkupLine("────────────────────────────────────────────\n");
@@ -55,6 +55,10 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                 case "🔙 Back to Main Menu":
                     bool isNewCase = true; // for the Main Menu to still show the summary if returning from a new case
                     MainMenu.Show(caseId, isNewCase);
+                    break;
+
+                default:
+                    AnsiConsole.MarkupLine("[red]Invalid choice. Please try again.[/]");
                     break;
             }
         }
