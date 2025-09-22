@@ -107,7 +107,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 
                     case "🧠 Capture Memory":
                         AnsiConsole.MarkupLine("[yellow]→ Launching memory capture...[/]");
-                        // TODO: Call MemoryCapture.Run(caseId);
+                        CaseOperations_SubMenu.CaptureMemory.Run(caseId, userId);
                         break;
 
                     case "🧲 Image/Clone Drive or Partition":
@@ -172,10 +172,6 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                         // TODO: DriveScanner.Show(caseId);
                         break;
 
-                    case "🧠 Capture Memory":
-                        AnsiConsole.MarkupLine("[yellow]→ Launching memory capture...[/]");
-                        CaseOperations_SubMenu.CaptureMemory.Run(caseId, userId);
-                        break;
 
                     case "🔙 Back to Main Menu":
                         MainMenu.Show(caseId, userId, false);
