@@ -9,11 +9,11 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 {
     public static class UserManagement
     {
-        public static void Show(string caseId)
+        public static void Show(string caseId, bool isNewCase)
         {
             Console.Clear();
             AsciiTitle.Render("ForenSync");
-            AnsiConsole.MarkupLine("[blue]🔍 Main Menu > User Management [/]");
+            AnsiConsole.MarkupLine("[blue]📂 Main Menu > User Management [/]");
             AnsiConsole.MarkupLine("────────────────────────────────────────────\n");
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -35,7 +35,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                     AnsiConsole.MarkupLine("[yellow]→ Managing user roles...[/]");
                     break;
                 case "🔙 Back to Main Menu":
-                    bool isNewCase = true; // for the Main Menu to show the summary if returning from User Management
+                    // bool isNewCase = true; // for the Main Menu to show the summary if returning from User Management
                     MainMenu.Show(caseId, isNewCase);
                     break;
                 default:

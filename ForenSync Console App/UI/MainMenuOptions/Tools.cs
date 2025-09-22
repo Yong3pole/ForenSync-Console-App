@@ -9,12 +9,12 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 {
     public static class Tools
     {
-        public static void Show(string caseId)
+        public static void Show(string caseId, bool isNewCase)
         {
             Console.Clear();
             AsciiTitle.Render("ForenSync");
 
-            AnsiConsole.MarkupLine("[blue]🔍 Main Menu > Tools [/]");
+            AnsiConsole.MarkupLine("[blue]📂 Main Menu > Tools [/]");
             AnsiConsole.MarkupLine("────────────────────────────────────────────\n");
 
             var choice = AnsiConsole.Prompt(
@@ -44,7 +44,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                     break;
 
                 case "🔙 Back to Main Menu":
-                    bool isNewCase = true; // for the Main Menu to show the summary if returning from Tools
+                    // bool isNewCase = true; // for the Main Menu to show the summary if returning from Tools
                     MainMenu.Show(caseId, isNewCase);
                     break;
 

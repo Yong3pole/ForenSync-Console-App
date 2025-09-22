@@ -9,11 +9,11 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 {
     public static class Help
     {
-        public static void Show(string caseId)
+        public static void Show(string caseId, bool isNewCase)
         {
             Console.Clear();
             AsciiTitle.Render("ForenSync");
-            AnsiConsole.MarkupLine("[blue]🔍 Main Menu > Help [/]");
+            AnsiConsole.MarkupLine("[blue]📂 Main Menu > Help [/]");
             AnsiConsole.MarkupLine("────────────────────────────────────────────\n");
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -35,7 +35,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                     AnsiConsole.MarkupLine("[yellow]→ Contacting support...[/]");
                     break;
                 case "🔙 Back to Main Menu":
-                    bool isNewCase = true; // for the Main Menu to show the summary if returning from Help
+                    //bool isNewCase = true; // for the Main Menu to show the summary if returning from Help
                     MainMenu.Show(caseId, isNewCase);
                     break;
                 default:

@@ -9,12 +9,12 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 {
     public static class DeviceInfo
     {
-        public static void Show(string caseId)
+        public static void Show(string caseId, bool isNewCase)
         {
             Console.Clear();
-            AsciiTitle.Render("ForenSync");
+            AsciiTitle.Render("ForenSync");  
 
-            AnsiConsole.MarkupLine("[blue]🔍 Main Menu > Device Info [/]");
+            AnsiConsole.MarkupLine("[blue]📂 Main Menu > Device Info [/]");
             AnsiConsole.MarkupLine("────────────────────────────────────────────\n");
 
             var choice = AnsiConsole.Prompt(
@@ -49,7 +49,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                     break;
 
                 case "🔙 Back to Main Menu":
-                    bool isNewCase = true; // for the Main Menu to show the summary if returning from Device Info
+                    //bool isNewCase = true; // for the Main Menu to show the summary if returning from Device Info
                     MainMenu.Show(caseId, isNewCase);
                     break;
 

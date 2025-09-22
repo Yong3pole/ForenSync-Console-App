@@ -67,27 +67,27 @@ namespace ForenSync_Console_App.UI
             switch (choice)
             {
                 case "🧭 Case Operations":
-                    CaseOperations.Show(caseId);
+                    CaseOperations.Show(caseId, isNewCase);
                     break;
 
                 case "🛠️ Tools":
-                    Tools.Show(caseId);
+                    Tools.Show(caseId, isNewCase);
                     break;
 
                 case "💻 Device Info":
-                    DeviceInfo.Show(caseId);
+                    DeviceInfo.Show(caseId, isNewCase);
                     break;
 
                 case "📜 Acquisition History & Chain of Custody":
-                    AcquisitionHistory.Show(caseId);
+                    AcquisitionHistory.Show(caseId, isNewCase);
                     break;
 
                 case "👤 User Management":
-                    UserManagement.Show(caseId);
+                    UserManagement.Show(caseId, isNewCase);
                     break;
 
                 case "❓ Help":
-                    Help.Show(caseId);
+                    Help.Show(caseId, isNewCase);
                     break;
 
                 // Add other cases later

@@ -79,6 +79,21 @@ namespace ForenSync_Console_App.UI
             {
                 CaseManagement.CaseSession.StartNewCase(userId); // ✅ dynamic
             }
+            
+            else if (choice == "2") {
+                //CaseManagement.CaseSession.ContinueCase(userId); // ✅ dynamic
+            }
+            else if (choice == "3")
+            {
+                MainMenu.Show(null, false); // Proceed to main menu without case
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("❌ Invalid choice. Please try again.\n");
+                Console.ResetColor();
+                ShowSessionPrompt(userId);
+            }
 
             Console.WriteLine($"\nYou selected option {choice}. Proceeding...\n");
         }

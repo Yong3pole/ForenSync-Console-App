@@ -9,11 +9,11 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 {
     public static class AcquisitionHistory
     {
-        public static void Show(string caseId)
+        public static void Show(string caseId, bool isNewCase)
         {
             Console.Clear();
             AsciiTitle.Render("ForenSync");
-            AnsiConsole.MarkupLine("[blue]🔍 Main Menu > Acquisition History [/]");
+            AnsiConsole.MarkupLine("[blue]📂 Main Menu > Acquisition History [/]");
             AnsiConsole.MarkupLine("────────────────────────────────────────────\n");
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -36,7 +36,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                     break;
 
                 case "🔙 Back to Main Menu":
-                    bool isNewCase = true; // for the Main Menu to show the summary if returning from Acquisition History
+                    //bool isNewCase = true; // for the Main Menu to show the summary if returning from Acquisition History
                     MainMenu.Show(caseId, isNewCase);
                     break;
 
