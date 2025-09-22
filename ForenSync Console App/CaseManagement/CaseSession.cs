@@ -67,13 +67,13 @@ namespace ForenSync_Console_App.CaseManagement
 
                 string summaryPath = Path.Combine(casePath, "summary.txt");
                 string summaryContent = $@"
-Case ID       : {caseId}
-Jurisdiction  : {jurisdiction}
-Notes         : {(string.IsNullOrWhiteSpace(notes) ? "None" : notes)}
-User          : John Dela Cruz
-Role          : Administrator
-Created At    : {DateTime.Now}
-";
+                    Case ID       : {caseId}
+                    Jurisdiction  : {jurisdiction}
+                    Notes         : {(string.IsNullOrWhiteSpace(notes) ? "None" : notes)}
+                    User          : John Dela Cruz
+                    Role          : Administrator
+                    Created At    : {DateTime.Now}
+                    ";
 
                 File.WriteAllText(summaryPath, summaryContent.Trim());
             }
