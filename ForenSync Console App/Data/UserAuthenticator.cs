@@ -12,7 +12,7 @@ namespace ForenSync_Console_App.Data
     {
         public static bool ValidateUser(string userId, string password)
         {
-            string dbPath = @"C:\Users\kindr\source\repos\ForenSync-Console-App\forensync.db";
+            string dbPath = Path.Combine(AppContext.BaseDirectory, "forensync.db");
 
             using var connection = new SqliteConnection($"Data Source={dbPath}");
             connection.Open();

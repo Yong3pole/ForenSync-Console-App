@@ -170,8 +170,9 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
         {
             try
             {
-                string dbPath = @"C:\Users\kindr\source\repos\ForenSync-Console-App\forensync.db";
+                string dbPath = Path.Combine(AppContext.BaseDirectory, "forensync.db");
                 using var connection = new SqliteConnection($"Data Source={dbPath}");
+                connection.Open();
                 connection.Open();
 
                 var command = connection.CreateCommand();
