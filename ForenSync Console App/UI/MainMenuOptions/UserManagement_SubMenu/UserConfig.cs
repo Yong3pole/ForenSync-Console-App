@@ -316,7 +316,8 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
         {
             try
             {
-                string dbPath = @"C:\Users\kindr\source\repos\ForenSync-Console-App\forensync.db";
+                string basePath = AppContext.BaseDirectory;
+                string dbPath = Path.Combine(basePath, "forensync.db");
                 using var connection = new SqliteConnection($"Data Source={dbPath}");
                 connection.Open();
 
@@ -337,7 +338,8 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
         {
             try
             {
-                string dbPath = @"C:\Users\kindr\source\repos\ForenSync-Console-App\forensync.db";
+                string basePath = AppContext.BaseDirectory;
+                string dbPath = Path.Combine(basePath, "forensync.db");
                 using var connection = new SqliteConnection($"Data Source={dbPath}");
                 connection.Open();
 
@@ -355,7 +357,8 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
         {
             try
             {
-                string dbPath = @"C:\Users\kindr\source\repos\ForenSync-Console-App\forensync.db";
+                string basePath = AppContext.BaseDirectory;
+                string dbPath = Path.Combine(basePath, "forensync.db");
                 using var connection = new SqliteConnection($"Data Source={dbPath}");
                 connection.Open();
 
