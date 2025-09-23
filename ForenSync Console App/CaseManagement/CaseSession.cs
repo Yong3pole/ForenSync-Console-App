@@ -132,6 +132,7 @@ namespace ForenSync_Console_App.CaseManagement
         // Saves case details to database
         private static void SaveToDatabase(string caseId, string department, string notes, string userId, string casePath)
         {
+            string basePath = AppContext.BaseDirectory;
             string dbPath = Path.Combine(basePath, "forensync.db");
             using var connection = new SqliteConnection($"Data Source={dbPath}");
             connection.Open();
