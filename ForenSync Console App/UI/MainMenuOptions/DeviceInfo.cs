@@ -92,23 +92,29 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
             {
                 case "🖥️ View system info":
                     AnsiConsole.MarkupLine("[yellow]→ Gathering system info...[/]");
+                    DeviceInfo_SubMenu.ViewSystemInfo.Show();
+                    Show(caseId, userId, isNewCase);
                     break;
 
                 case "💽 View Disk Layout":
-                    AnsiConsole.MarkupLine("[yellow]→ Retrieving disk layout...[/]");
+                    DeviceInfo_SubMenu.ViewDiskLayout.Show();
+                    Show(caseId, userId, isNewCase);
                     break;
 
                 case "👤 List user accounts":
-                    AnsiConsole.MarkupLine("[yellow]→ Listing user accounts...[/]");
+                    DeviceInfo_SubMenu.ViewUserAccounts.Show();
+                    Show(caseId, userId, isNewCase);
                     break;
 
                 case "ℹ️ View installed applications":
                     AnsiConsole.MarkupLine("[yellow]→ Fetching installed applications...[/]");
+                    DeviceInfo_SubMenu.ViewInstalledApps.Show();
+                    Show(caseId, userId, isNewCase);
                     break;
 
                 case "🔙 Back to Main Menu":
                     //bool isNewCase = true; // for the Main Menu to show the summary if returning from Device Info
-                    MainMenu.Show(caseId, userId, false);
+                    MainMenu.Show(caseId, userId, isNewCase);
                     break;
 
                 default:
