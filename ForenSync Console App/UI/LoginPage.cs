@@ -21,7 +21,7 @@ namespace ForenSync_Console_App.UI
             // Initial action prompt
             var action = AnsiConsole.Prompt( 
                 new SelectionPrompt<string>() // ✅ Spectre.Console
-                    .Title("[green]Welcome to ForenSync. What would you like to do?[/]")
+                    .Title("[green]Welcome to ForenSync. Please select an operation to begin.[/]")
                     .PageSize(3)
                     .AddChoices(new[]
                     {
@@ -124,24 +124,24 @@ namespace ForenSync_Console_App.UI
                     .PageSize(4)
                     .AddChoices(new[]
                     {
-                "🆕 Start a new case or session",
-                "📂 Continue an ongoing case",
-                "⏭️ Skip case setup and proceed to main menu"
+                "🆕 Initiate new case or session",
+                "📂 Load existing case",
+                "⏭️ Skip setup and open to main menu"
                     }));
 
             switch (choice)
             {
-                case "🆕 Start a new case or session":
+                case "🆕 Initiate new case or session":
                     CaseManagement.CaseSession.StartNewCase(userId);
                     break;
 
-                case "📂 Continue an ongoing case":
+                case "📂 Load existing case":
                     // CaseManagement.CaseSession.ContinueCase(userId); // Uncomment when ready
                     AnsiConsole.MarkupLine("[yellow]⚠️ Continue case is temporarily disabled for testing.[/]");
                     ShowSessionPrompt(userId); // Loop back
                     return;
 
-                case "⏭️ Skip case setup and proceed to main menu":
+                case "⏭️ Skip setup and open to main menu":
                     MainMenu.Show(null, userId, false);
                     break;
             }

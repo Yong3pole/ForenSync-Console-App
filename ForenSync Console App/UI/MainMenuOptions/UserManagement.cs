@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu;
+using Microsoft.Data.Sqlite;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
             {
                 Console.WriteLine("🆕 Starting New Case\n");
 
-                string dbPath = Path.Combine(AppContext.BaseDirectory, "forensync.db");
+                string dbPath = @"C:\Users\kindr\source\repos\ForenSync-Console-App\forensync.db";
                 string connectionString = $"Data Source={dbPath}";
 
                 using var connection = new SqliteConnection(connectionString);
@@ -81,17 +82,19 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                     .AddChoices(new[]
                     {
                         "👤 Add User",
-                        "🛠️ Manage User Roles",
+                        "🛠️ User Configuration",
                         "🔙 Back to Main Menu"
                     }));
 
             switch (choice)
             {
                 case "👤 Add User":
-                    AnsiConsole.MarkupLine("[yellow]→ Adding a new user...[/]");
+                    //AnsiConsole.MarkupLine("[yellow]→ Adding a new user...[/]");
+                    AddUser.Render(caseId, userId, isNewCase);
                     break;
-                case "🛠️ Manage User Roles":
-                    AnsiConsole.MarkupLine("[yellow]→ Managing user roles...[/]");
+                case "🛠️ User Configuration":
+                    //AnsiConsole.MarkupLine("[yellow]→ Managing user roles...[/]");
+                    UserConfig.Render(caseId, userId, isNewCase);
                     break;
                 case "🔙 Back to Main Menu":
                     // bool isNewCase = true; // for the Main Menu to show the summary if returning from User Management

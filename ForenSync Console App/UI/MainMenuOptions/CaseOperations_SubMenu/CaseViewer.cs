@@ -15,7 +15,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
             Console.Clear();
             AsciiTitle.Render("ForenSync");
 
-            string dbPath = Path.Combine(AppContext.BaseDirectory, "forensync.db");
+            string dbPath = @"C:\Users\kindr\source\repos\ForenSync-Console-App\forensync.db";
             string connectionString = $"Data Source={dbPath}";
 
             using var connection = new SqliteConnection(connectionString);
