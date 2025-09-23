@@ -1,6 +1,7 @@
 ﻿using Spectre.Console;
 using System.Diagnostics;
 using System.Linq;
+using System.Management;
 
 namespace ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu
 {
@@ -9,7 +10,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu
         public static void Show()
         {
             Console.Clear();
-            AsciiTitle.Render("Running Processes");
+            AsciiTitle.Render("ForenSync");
 
             var processes = Process.GetProcesses()
                                    .OrderBy(p => p.ProcessName)
@@ -67,6 +68,51 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu
                 .Border(BoxBorder.Double)
                 .Padding(1, 1)
                 .BorderStyle(new Style(Color.Blue)));
+
+            AnsiConsole.MarkupLine("\n[grey]Press any key to return to Tools menu...[/]");
+            Console.ReadKey(true);
+        }
+        
+    }
+    public static class ViewProcessesWMI
+    {
+        public static void Show()
+        {
+            Console.Clear();
+            AsciiTitle.Render("ForenSync");
+
+            var table = new Table()
+                .RoundedBorder()
+                .AddColumn("PID")
+                .AddColumn("Name")
+                .AddColumn("Command Line")
+                .AddColumn("Parent PID");
+
+            try
+            {
+                var searcher = new ManagementObjectSearcher("SELECT ProcessId, Name, CommandLine, ParentProcessId FROM Win32_Process");
+
+                foreach (ManagementObject obj in searcher.Get())
+                {
+                    string pid = obj["ProcessId"]?.ToString() ?? "N/A";
+                    string name = obj["Name"]?.ToString() ?? "N/A";
+                    string rawCmd = obj["CommandLine"]?.ToString();
+                    string cmd = string.IsNullOrWhiteSpace(rawCmd) ? "N/A" : Markup.Escape(rawCmd);
+                    string parent = obj["ParentProcessId"]?.ToString() ?? "N/A";
+
+                    table.AddRow(pid, name, cmd, parent);
+                }
+
+                AnsiConsole.Write(new Panel(table)
+                    .Header("[bold green]WMI Process Snapshot[/]")
+                    .Border(BoxBorder.Double)
+                    .Padding(1, 1)
+                    .BorderStyle(new Style(Color.Blue)));
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]❌ Failed to query WMI: {ex.Message}[/]");
+            }
 
             AnsiConsole.MarkupLine("\n[grey]Press any key to return to Tools menu...[/]");
             Console.ReadKey(true);

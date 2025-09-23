@@ -79,10 +79,11 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[green]Select a tool:[/]")
-                    .PageSize(4)
+                    .PageSize(5)
                     .AddChoices(new[]
                     {
                         "📁 View running processes",
+                        "📊 View running processes (WMI)",
                         "🛜 List network connections",
                         "⏏️ List usb devices / removable media",
                         "🔙 Back to Main Menu"
@@ -93,16 +94,25 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                 case "📁 View running processes":
                     AnsiConsole.MarkupLine("[yellow]→ Listing running processes...[/]");
                     Tools_SubMenu.ViewProcesses.Show();
-
+                    Show(caseId, userId, isNewCase);
                     break;
 
-                case "💽 List network connections":
+                case "📊 View running processes (WMI)":
+                    Tools_SubMenu.ViewProcessesWMI.Show();
+                    Show(caseId, userId, isNewCase);
+                    break;
+
+                case "🛜 List network connections":
                     AnsiConsole.MarkupLine("[yellow]→ Listing network connections...[/]");
+                    ViewNetworkConnections.Show();
+                    Show(caseId, userId, isNewCase);
                     break;
 
-                case "🧠 List usb devices / removable media":
-                    AnsiConsole.MarkupLine("[yellow]→ Listing usb devices / removable media...[/]");
+                case "⏏️ List usb devices / removable media":
+                    ViewUsbDevices.Show();
+                    Show(caseId, userId, isNewCase);
                     break;
+
 
                 case "🔙 Back to Main Menu":
                     // bool isNewCase = true; // for the Main Menu to show the summary if returning from Tools
