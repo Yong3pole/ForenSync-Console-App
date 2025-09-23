@@ -73,9 +73,9 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                 Console.WriteLine("📂 Welcome Back\n");
             }
 
-
-            AnsiConsole.MarkupLine("[blue]📂 Main Menu > Case Operations [/]");
-            AnsiConsole.MarkupLine("────────────────────────────────────────────\n");
+            
+            AnsiConsole.MarkupLine("[cyan]📂 Main Menu > Case Operations [/]");
+            AnsiConsole.MarkupLine("────────────────────────────────────────────");
 
             if (isNewCase) // Show full menu for new cases
             {
@@ -107,7 +107,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 
                     case "🧠 Capture Memory":
                         AnsiConsole.MarkupLine("[yellow]→ Launching memory capture...[/]");
-                        CaseOperations_SubMenu.CaptureMemory.Run(caseId, userId);
+                        CaseOperations_SubMenu.CaptureMemory.Run(caseId, userId, isNewCase);
                         break;
 
                     case "🧲 Image/Clone Drive or Partition":

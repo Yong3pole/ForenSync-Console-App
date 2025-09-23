@@ -13,7 +13,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
 {
     public static class CaptureMemory
     {
-        public static void Run(string caseId, string userId)
+        public static void Run(string caseId, string userId, bool isNewCase)
         {
             Console.Clear();
             AsciiTitle.Render("Memory Capture");
@@ -71,16 +71,19 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
                     process.WaitForExit();
                 });
 
-            // Compute SHA-256 hash
-            string hash;
-            using (var sha256 = SHA256.Create())
-            using (var stream = File.OpenRead(fullOutputPath))
-            {
-                byte[] hashBytes = sha256.ComputeHash(stream);
-                hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-            }
+            string hash = "";
 
-            // Log to SQLite
+            AnsiConsole.Status()
+                .Spinner(Spinner.Known.Dots)
+                .SpinnerStyle(Style.Parse("yellow"))
+                .Start("Computing SHA-256 hash...", ctx =>
+                {
+                    using var sha256 = SHA256.Create();
+                    using var stream = File.OpenRead(fullOutputPath);
+                    byte[] hashBytes = sha256.ComputeHash(stream);
+                    hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+                });
+
             string dbPath = Path.Combine(basePath, "forensync.db");
             using var connection = new SqliteConnection($"Data Source={dbPath}");
             connection.Open();
@@ -98,15 +101,20 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
 
             command.ExecuteNonQuery();
 
-            // Output result
-            Console.WriteLine("✅ winpmem finished.");
-            Console.WriteLine($"Saved to: {fullOutputPath}");
+            AnsiConsole.MarkupLine("\n[green]✅ Memory capture completed successfully![/]");
+            AnsiConsole.MarkupLine($"[grey]Saved to:[/] [bold]{fullOutputPath}[/]");
+            AnsiConsole.MarkupLine($"[grey]SHA-256:[/] [blue]{hash}[/]");
 
             if (!string.IsNullOrWhiteSpace(error))
             {
-                Console.WriteLine("⚠️ Errors:");
+                AnsiConsole.MarkupLine("[yellow]⚠️ WinPmem reported errors:[/]");
                 Console.WriteLine(error);
             }
+
+            AnsiConsole.MarkupLine("\n[bold]Press any key to return to Case Operations...[/]");
+            Console.ReadKey(true);
+
+            CaseOperations.Show(caseId, userId, isNewCase);
         }
     }
 }

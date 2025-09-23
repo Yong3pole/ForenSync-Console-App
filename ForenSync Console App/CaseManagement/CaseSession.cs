@@ -29,17 +29,59 @@ namespace ForenSync_Console_App.CaseManagement
             // Generate Case ID after inputs to match timestamp
             string caseId = GenerateCaseId();
 
+            // Fetch user info from database
+            string basePath = AppContext.BaseDirectory;
+            string dbPath = Path.Combine(basePath, "forensync.db");
+
+            string fullName = "Unknown User";
+            string role = "Unknown Role";
+
+            try
+            {
+                using var connection = new SqliteConnection($"Data Source={dbPath}");
+                connection.Open();
+
+                using var command = connection.CreateCommand();
+                command.CommandText = @"
+            SELECT firstname, lastname, role
+            FROM users_tbl
+            WHERE user_id = $userId";
+                command.Parameters.AddWithValue("$userId", userId);
+
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    string first = reader.IsDBNull(0) ? "" : reader.GetString(0);
+                    string last = reader.IsDBNull(1) ? "" : reader.GetString(1);
+                    fullName = $"{first} {last}".Trim();
+                    role = reader.IsDBNull(2) ? "Unknown Role" : reader.GetString(2);
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("⚠️ User not found in database.");
+                    Console.ResetColor();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"❌ Error fetching user info: {ex.Message}");
+                Console.ResetColor();
+            }
+
+            // Display case summary
             Console.WriteLine("\n────────────────────────────────────────────");
             Console.WriteLine("📋 Case Summary:");
             Console.WriteLine("────────────────────────────────────────────");
             Console.WriteLine($"Case ID         : {caseId}");
-            Console.WriteLine($"Department    : {department}");
+            Console.WriteLine($"Department      : {department}");
             Console.WriteLine($"Notes           : {(string.IsNullOrWhiteSpace(notes) ? "None" : notes)}");
-            Console.WriteLine($"User            : John Dela Cruz");
-            Console.WriteLine($"Role            : Administrator");
+            Console.WriteLine($"User            : {fullName}");
+            Console.WriteLine($"Role            : {role}");
             Console.WriteLine("────────────────────────────────────────────\n");
 
-            string casePath = CreateCaseFolder(caseId, department, notes);
+            string casePath = CreateCaseFolder(caseId, department, notes, fullName, role);
             SaveToDatabase(caseId, department, notes, userId, casePath);
 
             Console.WriteLine("✅ Case folder created. Proceeding to main menu...\n");
@@ -55,7 +97,7 @@ namespace ForenSync_Console_App.CaseManagement
         }
 
         // Creates case folder and summary file
-        private static string CreateCaseFolder(string caseId, string department, string notes)
+        private static string CreateCaseFolder(string caseId, string department, string notes, string fullName, string role)
         {
             string basePath = Path.Combine(AppContext.BaseDirectory, "Cases");
             string casePath = Path.Combine(basePath, caseId);
@@ -67,13 +109,13 @@ namespace ForenSync_Console_App.CaseManagement
 
                 string summaryPath = Path.Combine(casePath, "summary.txt");
                 string summaryContent = $@"
-                    Case ID       : {caseId}
-                    Department    : {department}
-                    Notes         : {(string.IsNullOrWhiteSpace(notes) ? "None" : notes)}
-                    User          : John Dela Cruz
-                    Role          : Administrator
-                    Created At    : {DateTime.Now}
-                    ";
+            Case ID       : {caseId}
+            Department    : {department}
+            Notes         : {(string.IsNullOrWhiteSpace(notes) ? "None" : notes)}
+            User          : {fullName}
+            Role          : {role}
+            Created At    : {DateTime.Now}
+            ";
 
                 File.WriteAllText(summaryPath, summaryContent.Trim());
             }
@@ -85,7 +127,6 @@ namespace ForenSync_Console_App.CaseManagement
             }
 
             return casePath;
-
         }
 
         // Saves case details to database

@@ -72,8 +72,8 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                 Console.WriteLine("📂 Welcome Back\n");
             }
 
-            AnsiConsole.MarkupLine("[blue]📂 Main Menu > Help [/]");
-            AnsiConsole.MarkupLine("────────────────────────────────────────────\n");
+            AnsiConsole.MarkupLine("[cyan]📂 Main Menu > Help [/]");
+            AnsiConsole.MarkupLine("────────────────────────────────────────────");
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[green]Select an option:[/]")

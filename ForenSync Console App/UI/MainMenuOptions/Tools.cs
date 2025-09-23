@@ -72,8 +72,8 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                 Console.WriteLine("📂 Welcome Back\n");
             }
 
-            AnsiConsole.MarkupLine("[blue]📂 Main Menu > Tools [/]");
-            AnsiConsole.MarkupLine("────────────────────────────────────────────\n");
+            AnsiConsole.MarkupLine("[cyan]📂 Main Menu > Tools [/]");
+            AnsiConsole.MarkupLine("────────────────────────────────────────────");
 
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
