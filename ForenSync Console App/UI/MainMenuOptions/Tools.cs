@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu;
+using Microsoft.Data.Sqlite;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -89,15 +90,17 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 
             switch (choice)
             {
-                case "📁 view running processes":
+                case "📁 View running processes":
                     AnsiConsole.MarkupLine("[yellow]→ Listing running processes...[/]");
+                    Tools_SubMenu.ViewProcesses.Show();
+
                     break;
 
-                case "💽 list network connections":
+                case "💽 List network connections":
                     AnsiConsole.MarkupLine("[yellow]→ Listing network connections...[/]");
                     break;
 
-                case "🧠 list usb devices / removable media":
+                case "🧠 List usb devices / removable media":
                     AnsiConsole.MarkupLine("[yellow]→ Listing usb devices / removable media...[/]");
                     break;
 
