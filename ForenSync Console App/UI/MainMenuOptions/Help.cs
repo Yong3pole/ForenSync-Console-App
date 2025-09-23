@@ -88,14 +88,17 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
             switch (choice)
             {
                 case "📖 View Documentation":
-                    AnsiConsole.MarkupLine("[yellow]→ Opening documentation...[/]");
+                    Help_SubMenu.ViewDocumentation.Show();
+                    Show(caseId, userId, isNewCase);
                     break;
                 case "💬 Contact Support":
-                    AnsiConsole.MarkupLine("[yellow]→ Contacting support...[/]");
+                    Help_SubMenu.ContactSupport.Show();
+                    Show(caseId, userId, isNewCase);
+
                     break;
                 case "🔙 Back to Main Menu":
                     //bool isNewCase = true; // for the Main Menu to show the summary if returning from Help
-                    MainMenu.Show(caseId, userId, false);
+                    MainMenu.Show(caseId, userId, isNewCase);
                     break;
                 default:
                     AnsiConsole.MarkupLine("[red]Invalid choice. Please try again.[/]");

@@ -116,7 +116,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 
                 case "🔙 Back to Main Menu":
                     // bool isNewCase = true; // for the Main Menu to show the summary if returning from Tools
-                    MainMenu.Show(caseId, userId, false);
+                    MainMenu.Show(caseId, userId, isNewCase);
                     break;
 
                 default:
