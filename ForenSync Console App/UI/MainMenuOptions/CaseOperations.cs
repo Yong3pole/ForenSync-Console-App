@@ -97,7 +97,8 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                 {
                     case "📁 View Cases":
                         AnsiConsole.MarkupLine($"[yellow]→ Viewing cases for [bold]{caseId}[/][/]");
-                        CaseOperations_SubMenu.CaseViewer.Show(caseId);
+                        CaseOperations_SubMenu.CaseViewer.Show();
+                        Show(caseId, userId, isNewCase);
                         break;
 
                     case "💽 View Mounted Drives":
@@ -109,11 +110,13 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                     case "🧠 Capture Memory":
                         AnsiConsole.MarkupLine("[yellow]→ Launching memory capture...[/]");
                         CaseOperations_SubMenu.CaptureMemory.Run(caseId, userId, isNewCase);
+                        Show(caseId, userId, isNewCase);
                         break;
 
                     case "🧲 Image/Clone Drive or Partition":
                         AnsiConsole.MarkupLine("[yellow]→ Starting imaging workflow...[/]");
-                        CaseOperations_SubMenu.DriveImager.Show(caseId, userId);
+                        CaseOperations_SubMenu.DriveImager.Show(caseId, userId, isNewCase);
+                        Show(caseId, userId, isNewCase);
                         break;
 
                     case "🔙 Back to Main Menu":
@@ -165,7 +168,8 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                 {
                     case "📁 View Cases":
                         AnsiConsole.MarkupLine($"[yellow]→ Viewing cases for [bold]{caseId}[/][/]");
-                        CaseOperations_SubMenu.CaseViewer.Show(caseId);
+                        CaseOperations_SubMenu.CaseViewer.Show();
+                        Show(caseId, userId, isNewCase);
                         break;
 
                     case "💽 View Mounted Drives":

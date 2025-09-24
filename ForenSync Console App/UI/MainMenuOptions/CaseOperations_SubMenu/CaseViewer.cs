@@ -69,6 +69,8 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
             }
 
             AnsiConsole.Write(table);
+            AnsiConsole.MarkupLine("\n[grey]Press any key to return to Case Operations menu...[/]");
+            Console.ReadKey(true);
         }
     }
 

@@ -146,7 +146,7 @@ namespace ForenSync_Console_App.UI
                     break;
             }
 
-            AnsiConsole.MarkupLine($"\n[blue]You selected:[/] [bold]{choice}[/] — proceeding...\n");
+            //AnsiConsole.MarkupLine($"\n[blue]You selected:[/] [bold]{choice}[/] — proceeding...\n");
         }
     }
 }
