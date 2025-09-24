@@ -20,7 +20,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
             {
                 Console.WriteLine("🆕 Starting New Case\n");
 
-                string dbPath = @"C:\Users\kindr\source\repos\ForenSync-Console-App\forensync.db";
+                string dbPath = Path.Combine(AppContext.BaseDirectory, "forensync.db");
                 string connectionString = $"Data Source={dbPath}";
 
                 using var connection = new SqliteConnection(connectionString);
@@ -97,12 +97,13 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                 {
                     case "📁 View Cases":
                         AnsiConsole.MarkupLine($"[yellow]→ Viewing cases for [bold]{caseId}[/][/]");
-                        //CaseOperations_SubMenu.CaseViewer.Show(caseId);
+                        CaseOperations_SubMenu.CaseViewer.Show(caseId);
                         break;
 
                     case "💽 View Mounted Drives":
                         AnsiConsole.MarkupLine("[yellow]→ Scanning mounted drives...[/]");
-                        // TODO: Call DriveScanner.Show(caseId);
+                        DeviceInfo_SubMenu.ViewDiskLayout.Show(); // Same code for now, refer to DeviceInfo 
+                        Show(caseId, userId, isNewCase);
                         break;
 
                     case "🧠 Capture Memory":
@@ -112,7 +113,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 
                     case "🧲 Image/Clone Drive or Partition":
                         AnsiConsole.MarkupLine("[yellow]→ Starting imaging workflow...[/]");
-                        // TODO: Call DriveImager.Start(caseId);
+                        CaseOperations_SubMenu.DriveImager.Show(caseId, userId);
                         break;
 
                     case "🔙 Back to Main Menu":
@@ -169,9 +170,9 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
 
                     case "💽 View Mounted Drives":
                         AnsiConsole.MarkupLine("[yellow]→ Scanning mounted drives...[/]");
-                        // TODO: DriveScanner.Show(caseId);
+                        DeviceInfo_SubMenu.ViewDiskLayout.Show(); // Same code for now, refer to DeviceInfo
+                        Show(caseId, userId, isNewCase);
                         break;
-
 
                     case "🔙 Back to Main Menu":
                         MainMenu.Show(caseId, userId, false);

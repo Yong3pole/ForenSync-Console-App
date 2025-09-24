@@ -123,6 +123,12 @@ namespace ForenSync_Console_App.UI
                     Help.Show(caseId, userId, isNewCase);
                     break;
 
+                case "🚪 Exit":
+                    Console.Clear();
+                    AnsiConsole.MarkupLine("[yellow]Exiting ForenSync...[/]");
+                    Environment.Exit(0);
+                    break;
+
                 // Add other cases later
                 default:
                     AnsiConsole.MarkupLine($"[red]→ Option not yet implemented: {choice}[/]");
