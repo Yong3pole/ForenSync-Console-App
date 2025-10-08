@@ -81,7 +81,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
             {
                 var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("[green]Select an operation:[/]")
+                    .Title("[white]Select an operation:[/]")
                     .PageSize(5)
                     //.HighlightStyle(new Style(foreground: Color.Yellow))
                     .AddChoices(new[]
@@ -143,7 +143,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                 };
 
                 var prompt = new SelectionPrompt<string>()
-                    .Title("[green]Select an operation:[/]")
+                    .Title("[white]Select an operation:[/]")
                     .PageSize(5)
                     //.HighlightStyle(new Style(foreground: Color.Yellow))
                     .UseConverter(choice =>

@@ -1,13 +1,7 @@
 ﻿using ForenSync_Console_App.CaseManagement;
 using ForenSync_Console_App.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using Spectre.Console;
-
+using System;
 
 namespace ForenSync_Console_App.UI
 {
@@ -18,16 +12,11 @@ namespace ForenSync_Console_App.UI
             Console.Clear();
             AsciiTitle.Render("ForenSync");
 
-            // Initial action prompt
-            var action = AnsiConsole.Prompt( 
-                new SelectionPrompt<string>() // ✅ Spectre.Console
-                    .Title("[green]Welcome to ForenSync. Please select an operation to begin.[/]")
+            var action = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[yellow]Welcome to ForenSync. Please select an operation to begin.[/]")
                     .PageSize(3)
-                    .AddChoices(new[]
-                    {
-                "🔐 Log in",
-                "🚪 Exit"
-                    }));
+                    .AddChoices("🔐 Log in", "🚪 Exit"));
 
             if (action == "🚪 Exit")
             {
@@ -35,16 +24,12 @@ namespace ForenSync_Console_App.UI
                 Environment.Exit(0);
             }
 
-            // Proceed to login loop
             bool showError = false;
 
-
-            // Proceed to login loop
             while (true)
             {
                 Console.Clear();
                 AsciiTitle.Render("ForenSync");
-
                 AnsiConsole.MarkupLine("[bold blue]🔐 Please log in to continue[/]\n");
 
                 if (showError)
@@ -52,7 +37,7 @@ namespace ForenSync_Console_App.UI
                     AnsiConsole.MarkupLine("[red]❌ Invalid credentials. Please try again.[/]\n");
                 }
 
-                string userId = AnsiConsole.Ask<string>("👤 [green]Enter User ID[/]:").Trim();
+                string userId = AnsiConsole.Ask<string>("👤 [white]Enter User ID[/]:").Trim();
 
                 if (userId.Equals("exit", StringComparison.OrdinalIgnoreCase))
                 {
@@ -61,11 +46,10 @@ namespace ForenSync_Console_App.UI
                 }
 
                 string password = AnsiConsole.Prompt(
-                    new TextPrompt<string>("🔑 [green]Enter Password[/]:")
+                    new TextPrompt<string>("🔑 [white]Enter Password[/]:")
                         .PromptStyle("red")
                         .Secret());
 
-                // Synchronous
                 AnsiConsole.Status()
                     .SpinnerStyle(Style.Parse("yellow"))
                     .Start("🔄 Authenticating...", ctx =>
@@ -73,80 +57,86 @@ namespace ForenSync_Console_App.UI
                         Thread.Sleep(3000);
                     });
 
-                if (UserAuthenticator.ValidateUser(userId, password))
+                bool isAuthenticated = UserAuthenticator.ValidateUser(userId, password);
+
+                if (isAuthenticated)
                 {
                     ShowSessionPrompt(userId);
-                    break;
+                    return;
                 }
                 else
                 {
-                    showError = true; // Show error on next loop
+                    showError = true;
                 }
             }
-
         }
 
-
-        private static string ReadPassword()
-        {
-            string password = "";
-            ConsoleKeyInfo key;
-
-            do
-            {
-                key = Console.ReadKey(true);
-                if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
-                {
-                    password += key.KeyChar;
-                    Console.Write("*");
-                }
-                else if (key.Key == ConsoleKey.Backspace && password.Length > 0)
-                {
-                    password = password.Substring(0, password.Length - 1);
-                    Console.Write("\b \b");
-                }
-            } while (key.Key != ConsoleKey.Enter);
-
-            return password;
-        }
-
-        // Show session options after successful login
         private static void ShowSessionPrompt(string userId)
         {
-            Console.Clear();
-            AsciiTitle.Render("ForenSync");
-            AnsiConsole.MarkupLine("[green]✅ Login successful![/]\n");
-            AnsiConsole.MarkupLine("────────────────────────────────────────────");
-            
-            var choice = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[bold blue]🧭 Session Options: Choose to proceed:[/]")
-                    .PageSize(4)
-                    .AddChoices(new[]
-                    {
+            var options = new[]
+            {
                 "🆕 Initiate new case or session",
                 "📂 Load existing case",
                 "⏭️ Skip setup and open to main menu"
-                    }));
+            };
 
-            switch (choice)
+            int selectedIndex = 0;
+
+            while (true)
             {
-                case "🆕 Initiate new case or session":
-                    CaseManagement.CaseSession.StartNewCase(userId);
-                    break;
+                Console.Clear();
+                AsciiTitle.Render("ForenSync");
+                AnsiConsole.MarkupLine("[green]✅ Login successful![/]\n");
+                AnsiConsole.MarkupLine("────────────────────────────────────────────");
+                AnsiConsole.MarkupLine("[green]Use ↑↓ to navigate, [[Enter]] to select, [[Esc]] to return to login.[/]\n");
+                AnsiConsole.MarkupLine("[bold blue]🧭 Session Options: Choose to proceed:[/]\n");
 
-                case "📂 Load existing case":
-                    // CaseManagement.CaseSession.ContinueCase(userId); // Uncomment when ready
-                    AnsiConsole.MarkupLine("[yellow]⚠️ Continue case is temporarily disabled for testing.[/]");
-                    ShowSessionPrompt(userId); // Loop back
-                    return;
+                for (int i = 0; i < options.Length; i++)
+                {
+                    string prefix = i == selectedIndex ? "[bold blue]> " : "  ";
+                    string suffix = i == selectedIndex ? "[/]" : "";
+                    AnsiConsole.MarkupLine($"{prefix}{options[i]}{suffix}");
+                }
 
-                case "⏭️ Skip setup and open to main menu":
-                    MainMenu.Show(null, userId, false);
-                    break;
+                var key = Console.ReadKey(true).Key;
+
+                switch (key)
+                {
+                    case ConsoleKey.UpArrow:
+                        selectedIndex = (selectedIndex - 1 + options.Length) % options.Length;
+                        break;
+
+                    case ConsoleKey.DownArrow:
+                        selectedIndex = (selectedIndex + 1) % options.Length;
+                        break;
+
+                    case ConsoleKey.Enter:
+                        switch (options[selectedIndex])
+                        {
+                            case "🆕 Initiate new case or session":
+                                CaseSession.StartNewCase(userId);
+                                return;
+
+                            case "📂 Load existing case":
+                                string selectedCaseId = CaseSession.SelectExistingCase(userId);
+                                if (!string.IsNullOrEmpty(selectedCaseId))
+                                {
+                                    MainMenu.Show(selectedCaseId, userId, false);
+                                }
+                                break;
+
+                            case "⏭️ Skip setup and open to main menu":
+                                MainMenu.Show(null, userId, false);
+                                return;
+                        }
+                        break;
+
+                    case ConsoleKey.Escape:
+                        Console.Clear();
+                        PromptCredentials();
+                        return;
+                }
             }
-
-            //AnsiConsole.MarkupLine($"\n[blue]You selected:[/] [bold]{choice}[/] — proceeding...\n");
         }
     }
 }

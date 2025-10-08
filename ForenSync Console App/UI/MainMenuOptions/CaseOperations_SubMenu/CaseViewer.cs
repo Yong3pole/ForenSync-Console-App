@@ -42,7 +42,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
             }
 
             var table = new Table()
-                .Title("[bold underline green]All Case Logs[/]")
+                .Title("[bold underline yellow]All Case Logs[/]")
                 .Border(TableBorder.Rounded)
                 .AddColumn("🆔 Case ID")
                 .AddColumn("👤 User")

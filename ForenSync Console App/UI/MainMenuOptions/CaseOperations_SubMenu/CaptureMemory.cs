@@ -1,11 +1,12 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using ForenSync.Utils;
+using Microsoft.Data.Sqlite;
 using Spectre.Console;
-using System.Diagnostics;
-using System.Security.Principal;
-using System.Security.Cryptography;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,6 +19,21 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
             Console.Clear();
             AsciiTitle.Render("Memory Capture");
 
+            var confirmCapture = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[bold green]Do you want to capture volatile memory for this device session?[/]")
+                    .PageSize(3)
+                    .AddChoices(new[]
+                    {
+            "✅ Yes, proceed with memory capture",
+            "❌ No, return to Case Operations"
+                    }));
+
+            if (confirmCapture == "❌ No, return to Case Operations")
+            {
+                CaseOperations.Show(caseId, userId, isNewCase);
+                return;
+            }
             // Check for admin privileges
             bool isAdmin = new WindowsPrincipal(WindowsIdentity.GetCurrent())
                 .IsInRole(WindowsBuiltInRole.Administrator);
@@ -100,6 +116,8 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
             command.Parameters.AddWithValue("@created_at", DateTime.Now);
 
             command.ExecuteNonQuery();
+            //log to audit trail
+            AuditLogger.Log(userId, AuditAction.MemCapture, $"Captured volatile memory for case: {caseId} — output: {filename}, hash: {hash}");
 
             AnsiConsole.MarkupLine("\n[green]✅ Memory capture completed successfully![/]");
             AnsiConsole.MarkupLine($"[grey]Saved to:[/] [bold]{fullOutputPath}[/]");

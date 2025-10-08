@@ -1,17 +1,16 @@
-﻿using Microsoft.Data.Sqlite;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using ForenSync.Utils;
+using Microsoft.Data.Sqlite;
 using Spectre.Console;
 using System;
+using System;
+using System.Collections.Generic;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Principal;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Principal;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
 {
@@ -31,7 +30,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
             var outputPath = Path.Combine(casePath, outputName);
 
             var rawPath = $"\\\\.\\{selectedDrive.Substring(0, 2)}"; // e.g., "C:"
-            ImageVolume(rawPath, outputPath, caseId);
+            ImageVolume(rawPath, outputPath, caseId, userId);
         }
 
         private static string PromptDriveSelection()
@@ -52,15 +51,49 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
                 return null;
             }
 
-            return AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("Select a drive to image")
-                    .PageSize(10)
-                    .UseConverter(x => x)
-                    .AddChoices(choices));
-        }
+            var prompt = new SelectionPrompt<string>()
+                .Title("Select Drive to Image:")
+                .PageSize(10)
+                .UseConverter(x => x)
+                .AddChoices(choices);
 
-        private static void ImageVolume(string volumePath, string outputPath, string caseId)
+            // Render prompt manually
+            var console = AnsiConsole.Console;
+            var selected = choices[0];
+            int index = 0;
+
+            while (true)
+            {
+                console.Clear();
+                AsciiTitle.Render("Drive Imaging");
+                AnsiConsole.MarkupLine("[green]Use ↑↓ to navigate, Enter to select, Esc to cancel.[/]\n");
+
+                for (int i = 0; i < choices.Count; i++)
+                {
+                    if (i == index)
+                        AnsiConsole.MarkupLine($"[blue]> {choices[i]}[/]");
+                    else
+                        AnsiConsole.MarkupLine($"  {choices[i]}");
+                }
+
+                var key = Console.ReadKey(true).Key;
+
+                switch (key)
+                {
+                    case ConsoleKey.UpArrow:
+                        index = (index - 1 + choices.Count) % choices.Count;
+                        break;
+                    case ConsoleKey.DownArrow:
+                        index = (index + 1) % choices.Count;
+                        break;
+                    case ConsoleKey.Enter:
+                        return choices[index];
+                    case ConsoleKey.Escape:
+                        return null;
+                }
+            }
+        }
+        private static void ImageVolume(string volumePath, string outputPath, string caseId, string userId)
         {
             if (!IsAdmin())
             {
@@ -69,8 +102,26 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
             }
 
             AnsiConsole.MarkupLine($"🛠 Imaging [yellow]{volumePath}[/] to [green]{outputPath}[/]...");
+            AnsiConsole.MarkupLine("[grey]Press Esc anytime to cancel imaging...[/]");
 
             string hash = "";
+            var cts = new CancellationTokenSource();
+
+            // Monitor for Esc key in background
+            Task.Run(() =>
+            {
+                while (!cts.IsCancellationRequested)
+                {
+                    if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
+                    {
+                        cts.Cancel();
+                        AnsiConsole.MarkupLine("\n[red]❌ Imaging cancelled by user.[/]");
+                        break;
+                    }
+                    Thread.Sleep(100);
+                }
+            });
+
             try
             {
                 using var src = new FileStream(volumePath, FileMode.Open, FileAccess.Read);
@@ -95,7 +146,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
                 {
                     var task = ctx.AddTask("Imaging volume", autoStart: true);
 
-                    while (true)
+                    while (!cts.IsCancellationRequested)
                     {
                         int bytesRead = src.Read(buffer, 0, buffer.Length);
                         if (bytesRead == 0) break;
@@ -103,14 +154,23 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
                         dst.Write(buffer, 0, bytesRead);
                         hasher.TransformBlock(buffer, 0, bytesRead, null, 0);
                         totalBytes += bytesRead;
-                        task.Increment((bytesRead / 1024f / 1024f));
+                        task.Increment((bytesRead / 1024f / 1024f)); // MB increment
                     }
-
-                    hasher.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
-                    hash = BitConverter.ToString(hasher.Hash).Replace("-", "").ToLowerInvariant();
                 });
 
+                if (cts.IsCancellationRequested)
+                {
+                    dst.Close();
+                    File.Delete(outputPath); // Optional: remove partial image
+                    AuditLogger.Log(userId, AuditAction.Image, $"Imaging cancelled for volume: {volumePath}");
+                    return;
+                }
+
+                hasher.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+                hash = BitConverter.ToString(hasher.Hash).Replace("-", "").ToLowerInvariant();
+
                 LogToDatabase(caseId, "drive", ".NET FileStream", outputPath, hash);
+                AuditLogger.Log(userId, AuditAction.Image, $"Imaged volume: {volumePath} → {outputPath} | SHA256: {hash}");
 
                 AnsiConsole.MarkupLine("\n[green]✅ Imaging complete.[/]");
                 AnsiConsole.Write(new Table()
@@ -132,6 +192,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.CaseOperations_SubMenu
                 AnsiConsole.MarkupLine($"⚠️ [red]Error:[/] {ex.Message}");
             }
         }
+
 
         private static void LogToDatabase(string caseId, string type, string tool, string outputPath, string hash)
         {

@@ -1,8 +1,9 @@
-﻿using System;
-using System.Text;
+﻿using ForenSync.Utils;
+using ForenSync_Console_App.UI;
 using Microsoft.Data.Sqlite;
 using Spectre.Console;
-using ForenSync_Console_App.UI;
+using System;
+using System.Text;
 
 namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
 {
@@ -33,12 +34,12 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
             {
                 Console.Clear();
                 AsciiTitle.Render("Register New User");
-                AnsiConsole.MarkupLine("[bold]Please fill the required fields. Press [[F10]] to confirm.[/]\n");
+                AnsiConsole.MarkupLine("[white]Please fill the required fields.[/]\n");
 
                 for (int i = 0; i < fields.Length; i++)
                 {
                     var field = fields[i];
-                    string highlight = i == fieldIndex ? "[underline]" : "";
+                    string highlight = i == fieldIndex ? "[bold blue]" : "";
                     string end = i == fieldIndex ? "[/]" : "";
                     AnsiConsole.MarkupLine($"{highlight}{field.Label,-25}:{end} {field.Value}");
                 }
@@ -46,7 +47,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
                 string roleHighlight = fieldIndex == fields.Length ? "[underline bold yellow]" : "[bold yellow]";
                 AnsiConsole.MarkupLine($"\nRole: {roleHighlight}{roles[roleIndex]}[/]");
                 AnsiConsole.MarkupLine("Use [yellow]←[/] and [yellow]→[/] to toggle roles.");
-                AnsiConsole.MarkupLine("Press [black on grey] Esc [/] to cancel/return.");
+                AnsiConsole.MarkupLine("Press [black on grey] Esc [/] to cancel/return. Press [[F10]] to confirm.");
 
                 var key = Console.ReadKey(intercept: true);
 
@@ -113,7 +114,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
             AnsiConsole.MarkupLine($"[green]Created At:[/] {createdAt}");
             AnsiConsole.MarkupLine($"[green]Active    :[/] {active}");
 
-            Console.WriteLine($"\nYou are registering this user as [bold yellow]{role}[/]. Are you sure you wish to continue?");
+            AnsiConsole.MarkupLine($"\nYou are registering this user as [bold yellow]{role}[/]. Are you sure you wish to continue?");
             Console.WriteLine("Press [1] = YES   Press [2] = NO");
 
             var confirm = Console.ReadKey(intercept: true);
@@ -130,14 +131,17 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
                 AnsiConsole.MarkupLine($"[green]✅ User successfully added.[/]");
                 AnsiConsole.MarkupLine($"[blue]Generated User ID:[/] {userId}");
                 AnsiConsole.MarkupLine($"[blue]Generated Password:[/] {password}");
+                //save to audit trail
+                AuditLogger.Log(currentUserId, AuditAction.AddUser, $"Added user: {userId} ({firstName} {lastName}), role: {role}, department: {department}");
+
             }
             else
             {
                 AnsiConsole.MarkupLine("[red]❌ Failed to add user. Please check input or database.[/]");
             }
 
-            Console.WriteLine("\nPress [Enter] to continue...");
-            Console.ReadLine();
+            AnsiConsole.MarkupLine("[grey]Please take note of the generated User ID and Password — they are required for system login.[/]");
+            Console.ReadKey(true);
             UserManagement.Show(caseId, currentUserId, isNewCase);
         }
 

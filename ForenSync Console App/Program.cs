@@ -1,4 +1,5 @@
-﻿using ForenSync_Console_App.UI;
+﻿using ForenSync_Console_App;
+using ForenSync_Console_App.UI;
 using System.Text;
 
 class Program
@@ -7,6 +8,7 @@ class Program
     {
         Console.OutputEncoding = Encoding.UTF8;
         Console.InputEncoding = Encoding.UTF8;
+
         LoginPage.PromptCredentials();
     }
 }

@@ -77,7 +77,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
             AnsiConsole.MarkupLine("────────────────────────────────────────────");
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("[green]Select an option:[/]")
+                    .Title("[white]Select an option:[/]")
                     .PageSize(3)
                     .AddChoices(new[]
                     {

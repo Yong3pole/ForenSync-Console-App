@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ForenSync.Utils;
+using ForenSync_Console_App.UI;
 using Microsoft.Data.Sqlite;
 using Spectre.Console;
-using ForenSync_Console_App.UI;
+using System;
+using System.Collections.Generic;
 
 
 namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
@@ -60,7 +61,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
 
                 var table = new Table()
                     .Border(TableBorder.Rounded)
-                    .Title("[bold underline]Registered Users[/]")
+                    .Title("[bold yellow underline]Registered Users[/]")
                     .AddColumn("User ID")
                     .AddColumn("Last Name")
                     .AddColumn("First Name")
@@ -74,7 +75,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
                 {
                     var user = pageUsers[i];
                     bool isSelected = i == selectedIndex;
-                    string style = isSelected ? "[bold yellow]" : "";
+                    string style = isSelected ? "[bold blue]" : "";
                     string end = isSelected ? "[/]" : "";
 
                     table.AddRow(
@@ -91,152 +92,163 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.UserManagement_SubMenu
 
                 AnsiConsole.Write(table);
                 AnsiConsole.MarkupLine($"\n[grey]Page {currentPage + 1} of {totalPages}[/]");
-                AnsiConsole.MarkupLine($"[grey]Sorted by: {currentSort} {(ascending ? "[green]↑[/]" : "[red]↓[/]")}[/]");
-                AnsiConsole.MarkupLine("[grey]Use [[↑↓]] to select, [[←→]] to switch pages, [[, .]] to change sort, [[S]] to search, [[Enter]] for actions, [[Esc]] to exit.[/]");
-                var key = Console.ReadKey(true).Key;
+                AnsiConsole.MarkupLine($"[grey]Sorted by: {currentSort} {(ascending ? "[green]↑[/]" : "[red]↓[/]")}[/]\n");
+                AnsiConsole.MarkupLine("[green]Use [[↑↓]] to select, [[←→]] to switch pages, [[, .]] to change sort, [[S]] to search, [[Enter]] for actions, [[Esc]] to exit.[/]");
+                    var key = Console.ReadKey(true).Key;
 
-                switch (key)
-                {
-                    case ConsoleKey.UpArrow:
-                        selectedIndex = (selectedIndex - 1 + pageUsers.Count) % pageUsers.Count;
-                        break;
-                    case ConsoleKey.DownArrow:
-                        selectedIndex = (selectedIndex + 1) % pageUsers.Count;
-                        break;
-                    case ConsoleKey.LeftArrow:
-                        if (currentPage > 0)
-                        {
-                            currentPage--;
-                            selectedIndex = 0;
-                        }
-                        break;
-                    case ConsoleKey.RightArrow:
-                        if (currentPage < totalPages - 1)
-                        {
-                            currentPage++;
-                            selectedIndex = 0;
-                        }
-                        break;
-                    case ConsoleKey.OemComma: // ,
-                        currentSort = PrevSortField(currentSort);
-                        ascending = true;
-                        break;
-                    case ConsoleKey.OemPeriod: // .
-                        currentSort = NextSortField(currentSort);
-                        ascending = true;
-                        break;
-                    case ConsoleKey.S:
-                        Console.Clear();
-                        AsciiTitle.Render("Search Users");
-                        AnsiConsole.Markup("[cyan]Search by name, badge, or department[/]: ");
-                        string query = Console.ReadLine()?.Trim().ToLower() ?? "";
-
-                        users = allUsers.FindAll(u =>
-                            u.UserId.ToLower().Contains(query) ||
-                            u.FirstName.ToLower().Contains(query) ||
-                            u.LastName.ToLower().Contains(query) ||
-                            u.BadgeNum.ToLower().Contains(query) ||
-                            u.Department.ToLower().Contains(query)
-                        );
-
-                        currentPage = 0;
-                        selectedIndex = 0;
-                        break;
-                    case ConsoleKey.Enter:
-                        var selectedUser = pageUsers[selectedIndex];
-                        Console.Clear();
-                        AsciiTitle.Render("User Actions");
-
-                        AnsiConsole.MarkupLine($"[bold]User Selected:[/] {selectedUser.UserId} | {selectedUser.FirstName} {selectedUser.LastName} | {selectedUser.Department}");
-                        AnsiConsole.MarkupLine($"[green]Current Time:[/] {DateTime.Now:dddd, dd MMMM yyyy, HH:mm:ss}");
-                        AnsiConsole.MarkupLine("\n[[1]] Change Password\n[[2]] Toggle Active Status\n[[Esc]] Cancel");
-
-
-                        var actionKey = Console.ReadKey(true).Key;
-                        if (actionKey == ConsoleKey.Escape) break;
-
-                        if (actionKey == ConsoleKey.D1)
-                        {
-                            Console.Clear();
-                            AsciiTitle.Render("Change Password");
-                            AnsiConsole.MarkupLine("[yellow]Are you sure you want to change this user's password?[/]");
-                            Console.WriteLine("Press [1] = YES   Press [2] = NO");
-
-                            var confirm = Console.ReadKey(true).Key;
-                            if (confirm != ConsoleKey.D1) break;
-
-                            Console.Write("Enter admin ID: ");
-                            string adminId = Console.ReadLine()?.Trim();
-                            Console.Write("Enter admin password: ");
-                            string adminPass = Console.ReadLine()?.Trim();
-
-                            if (!ValidateAdmin(adminId, adminPass))
+                    switch (key)
+                    {
+                        case ConsoleKey.UpArrow:
+                            selectedIndex = (selectedIndex - 1 + pageUsers.Count) % pageUsers.Count;
+                            break;
+                        case ConsoleKey.DownArrow:
+                            selectedIndex = (selectedIndex + 1) % pageUsers.Count;
+                            break;
+                        case ConsoleKey.LeftArrow:
+                            if (currentPage > 0)
                             {
-                                AnsiConsole.MarkupLine("[red]❌ Admin override failed.[/]");
+                                currentPage--;
+                                selectedIndex = 0;
+                            }
+                            break;
+                        case ConsoleKey.RightArrow:
+                            if (currentPage < totalPages - 1)
+                            {
+                                currentPage++;
+                                selectedIndex = 0;
+                            }
+                            break;
+                        case ConsoleKey.OemComma: // ,
+                            currentSort = PrevSortField(currentSort);
+                            ascending = true;
+                            break;
+                        case ConsoleKey.OemPeriod: // .
+                            currentSort = NextSortField(currentSort);
+                            ascending = true;
+                            break;
+                        case ConsoleKey.S:
+                            Console.Clear();
+                            AsciiTitle.Render("Search Users");
+                            AnsiConsole.Markup("[cyan]Search by name, badge, or department[/]: ");
+                            string query = Console.ReadLine()?.Trim().ToLower() ?? "";
+
+                            users = allUsers.FindAll(u =>
+                                u.UserId.ToLower().Contains(query) ||
+                                u.FirstName.ToLower().Contains(query) ||
+                                u.LastName.ToLower().Contains(query) ||
+                                u.BadgeNum.ToLower().Contains(query) ||
+                                u.Department.ToLower().Contains(query)
+                            );
+
+                            currentPage = 0;
+                            selectedIndex = 0;
+                            break;
+                        case ConsoleKey.Enter:
+                            var selectedUser = pageUsers[selectedIndex];
+                            Console.Clear();
+                            AsciiTitle.Render("User Actions");
+
+                            AnsiConsole.MarkupLine($"[bold]User Selected:[/] {selectedUser.UserId} | {selectedUser.FirstName} {selectedUser.LastName} | {selectedUser.Department}");
+                            AnsiConsole.MarkupLine($"[green]Current Time:[/] {DateTime.Now:dddd, dd MMMM yyyy, HH:mm:ss}");
+                            AnsiConsole.MarkupLine("\n[[1]] Change Password\n[[2]] Toggle Active Status\n[[Esc]] Cancel");
+
+
+                            var actionKey = Console.ReadKey(true).Key;
+                            if (actionKey == ConsoleKey.Escape) break;
+
+                            if (actionKey == ConsoleKey.D1)
+                            {
+                                Console.Clear();
+                                AsciiTitle.Render("Change Password");
+                                AnsiConsole.MarkupLine("[yellow]Are you sure you want to change this user's password?[/]");
+                                Console.WriteLine("Press [1] = YES   Press [2] = NO");
+
+                                var confirm = Console.ReadKey(true).Key;
+                                if (confirm != ConsoleKey.D1) break;
+
+                                Console.Write("Enter admin ID: ");
+                                string adminId = Console.ReadLine()?.Trim();
+                                Console.Write("Enter admin password: ");
+                                string adminPass = Console.ReadLine()?.Trim();
+
+                                if (!ValidateAdmin(adminId, adminPass))
+                                {
+                                    AnsiConsole.MarkupLine("[red]❌ Admin override failed.[/]");
+                                    Console.ReadLine();
+                                    break;
+                                }
+
+                                string newPassword = GeneratePassword(selectedUser.UserId);
+                                if (UpdatePassword(selectedUser.UserId, newPassword))
+                                {
+                                    AnsiConsole.MarkupLine("[green]✅ Password updated successfully.[/]");
+                                    AnsiConsole.MarkupLine($"[blue]New Password:[/] {newPassword}");
+                                //save to audit trail
+                                AuditLogger.Log(adminId, AuditAction.ChangePassword, $"Changed password for user: {selectedUser.UserId} ({selectedUser.FirstName} {selectedUser.LastName})");
+
+
+                            }
+                            else
+                                {
+                                    AnsiConsole.MarkupLine("[red]❌ Failed to update password.[/]");
+                                }
+
+                                Console.WriteLine("\nPress [Enter] to continue...");
                                 Console.ReadLine();
                                 break;
                             }
 
-                            string newPassword = GeneratePassword(selectedUser.UserId);
-                            if (UpdatePassword(selectedUser.UserId, newPassword))
+                            if (actionKey == ConsoleKey.D2)
                             {
-                                AnsiConsole.MarkupLine("[green]✅ Password updated successfully.[/]");
-                                AnsiConsole.MarkupLine($"[blue]New Password:[/] {newPassword}");
+                                Console.Clear();
+                                AsciiTitle.Render("Toggle User Status");
+                                string action = selectedUser.Active == 1 ? "deactivate" : "activate";
+                                AnsiConsole.MarkupLine($"[yellow]Are you sure you want to {action} this user?[/]");
+                                Console.WriteLine("Press [1] = YES   Press [2] = NO");
+
+                                var confirm = Console.ReadKey(true).Key;
+                                if (confirm != ConsoleKey.D1) break;
+
+                                Console.Write("Enter admin ID: ");
+                                string adminId = Console.ReadLine()?.Trim();
+                                Console.Write("Enter admin password: ");
+                                string adminPass = Console.ReadLine()?.Trim();
+
+                                if (!ValidateAdmin(adminId, adminPass))
+                                {
+                                    AnsiConsole.MarkupLine("[red]❌ Admin override failed.[/]");
+                                    Console.ReadLine();
+                                    break;
+                                }
+
+                                int newStatus = selectedUser.Active == 1 ? 0 : 1;
+                                if (UpdateStatus(selectedUser.UserId, newStatus))
+                                {
+                                    AnsiConsole.MarkupLine($"[green]✅ User status updated to {(newStatus == 1 ? "Active" : "Inactive")}.[/]");
+                                //save to audit trail
+                                AuditLogger.Log(adminId, AuditAction.ViewUserConfig, $"Toggled active status for user: {selectedUser.UserId} → {(newStatus == 1 ? "Active" : "Inactive")}");
+
                             }
                             else
-                            {
-                                AnsiConsole.MarkupLine("[red]❌ Failed to update password.[/]");
-                            }
+                                {
+                                    AnsiConsole.MarkupLine("[red]❌ Failed to update status.[/]");
+                                }
 
-                            Console.WriteLine("\nPress [Enter] to continue...");
-                            Console.ReadLine();
-                            break;
-                        }
-
-                        if (actionKey == ConsoleKey.D2)
-                        {
-                            Console.Clear();
-                            AsciiTitle.Render("Toggle User Status");
-                            string action = selectedUser.Active == 1 ? "deactivate" : "activate";
-                            AnsiConsole.MarkupLine($"[yellow]Are you sure you want to {action} this user?[/]");
-                            Console.WriteLine("Press [1] = YES   Press [2] = NO");
-
-                            var confirm = Console.ReadKey(true).Key;
-                            if (confirm != ConsoleKey.D1) break;
-
-                            Console.Write("Enter admin ID: ");
-                            string adminId = Console.ReadLine()?.Trim();
-                            Console.Write("Enter admin password: ");
-                            string adminPass = Console.ReadLine()?.Trim();
-
-                            if (!ValidateAdmin(adminId, adminPass))
-                            {
-                                AnsiConsole.MarkupLine("[red]❌ Admin override failed.[/]");
+                                Console.WriteLine("\nPress [Enter] to continue...");
                                 Console.ReadLine();
                                 break;
                             }
-
-                            int newStatus = selectedUser.Active == 1 ? 0 : 1;
-                            if (UpdateStatus(selectedUser.UserId, newStatus))
-                            {
-                                AnsiConsole.MarkupLine($"[green]✅ User status updated to {(newStatus == 1 ? "Active" : "Inactive")}.[/]");
-                            }
-                            else
-                            {
-                                AnsiConsole.MarkupLine("[red]❌ Failed to update status.[/]");
-                            }
-
-                            Console.WriteLine("\nPress [Enter] to continue...");
-                            Console.ReadLine();
                             break;
-                        }
-                        break;
 
 
-                    case ConsoleKey.Escape:
-                        UserManagement.Show(caseId, currentUserId, isNewCase);
-                        return;
-                }
+                        case ConsoleKey.Escape:
+                            Console.Clear();
+                            AsciiTitle.Render("Returning to User Management");
+                            AnsiConsole.MarkupLine("[grey]Exiting User Configuration...[/]");
+                            Thread.Sleep(500); // Optional: brief pause for UX clarity
+                            UserManagement.Show(caseId, currentUserId, isNewCase);
+                            return;
+                    }
             }
         }
 
