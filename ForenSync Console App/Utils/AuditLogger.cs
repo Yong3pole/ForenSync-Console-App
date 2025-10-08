@@ -8,7 +8,7 @@ namespace ForenSync.Utils
     {
         Image,
         MemCapture,
-        ExportedEvidence,
+        ExportedSnapshot,
         AddUser,
         ChangePassword,
         AccessCase,

@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Spectre.Console;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Text;
+using Spectre.Console;
+using ForenSync.Utils;
 
 namespace ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu
 {
     public static class ViewNetworkConnections
     {
-        public static void Show()
+        public static void Show(string currentCasePath, string userId)
         {
             Console.Clear();
             AsciiTitle.Render("Network Connections");
@@ -69,6 +68,8 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu
                 .AddColumn("Remote")
                 .AddColumn("State");
 
+            var sb = new StringBuilder();
+
             foreach (var conn in connections)
             {
                 string local = $"{conn.LocalEndPoint.Address}:{conn.LocalEndPoint.Port}";
@@ -78,6 +79,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu
                 string state = conn.State.ToString();
 
                 table.AddRow(local, remote, state);
+                sb.AppendLine($"{local} | {remote} | {state}");
             }
 
             AnsiConsole.Write(new Panel(table)
@@ -86,8 +88,35 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu
                 .Padding(1, 1)
                 .BorderStyle(new Style(Color.Blue)));
 
-            AnsiConsole.MarkupLine("\n[grey]Press any key to return to Tools menu...[/]");
-            Console.ReadKey(true);
+            // Snapshot logic
+            if (string.IsNullOrWhiteSpace(currentCasePath))
+            {
+                AnsiConsole.MarkupLine("\n[red]❌ No active case selected. Press [bold]Esc[/] to return.[/]");
+                while (true)
+                {
+                    var fallbackKey = Console.ReadKey(true);
+                    if (fallbackKey.Key == ConsoleKey.Escape)
+                    {
+                        Tools.Show(null, null, false); // Replace with actual context if available
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("\n[green][[S]][/]: Save snapshot   [green][[Esc]][/]: Return to Tools");
+
+                var key = EvidenceWriter.TryReadKey();
+                Console.WriteLine($"[debug] key: {key?.Key}");
+
+                if (key?.Key == ConsoleKey.S)
+                {
+                    Console.WriteLine("[debug] S key detected. Attempting to save network snapshot...");
+                    EvidenceWriter.SaveToEvidence(currentCasePath, sb.ToString(), "network_connections");
+                    AuditLogger.Log(userId, AuditAction.ExportedSnapshot, "Saved: network_connections");
+
+                }
+            }
         }
     }
 }

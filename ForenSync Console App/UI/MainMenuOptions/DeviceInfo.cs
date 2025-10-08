@@ -14,7 +14,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
         {
             Console.Clear();
             AsciiTitle.Render("ForenSync");
-
+            string caseFolderPath = Path.Combine(AppContext.BaseDirectory, "Cases", caseId);
             if (isNewCase) // Show summary only for new cases 
             {
                 Console.WriteLine("🆕 Starting New Case\n");
@@ -92,7 +92,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
             {
                 case "🖥️ View system info":
                     AnsiConsole.MarkupLine("[yellow]→ Gathering system info...[/]");
-                    DeviceInfo_SubMenu.ViewSystemInfo.Show();
+                    DeviceInfo_SubMenu.ViewSystemInfo.Show(caseFolderPath, userId);
                     Show(caseId, userId, isNewCase);
                     break;
 

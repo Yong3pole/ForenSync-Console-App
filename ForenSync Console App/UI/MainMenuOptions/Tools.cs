@@ -16,6 +16,16 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
             Console.Clear();
             AsciiTitle.Render("ForenSync");
 
+            if (string.IsNullOrWhiteSpace(caseId))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("❌ Case ID is missing or invalid.");
+                Console.ResetColor();
+                return;
+            }
+
+            string caseFolderPath = Path.Combine(AppContext.BaseDirectory, "Cases", caseId);
+
             if (isNewCase) // Show summary only for new cases 
             {
                 Console.WriteLine("🆕 Starting New Case\n");
@@ -55,6 +65,8 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                         ? createdDate.ToString("MMM dd, yyyy")
                         : rawDate;
 
+                    
+
                     // Display the case summary
                     Console.WriteLine("📋 Case Summary:");
                     Console.WriteLine("───────────────────────────────────────────────────────────────────────────");
@@ -93,18 +105,19 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
             {
                 case "📁 View running processes":
                     AnsiConsole.MarkupLine("[yellow]→ Listing running processes...[/]");
-                    Tools_SubMenu.ViewProcesses.Show();
+                    Tools_SubMenu.ViewProcesses.Show(caseFolderPath, userId);
                     Show(caseId, userId, isNewCase);
                     break;
 
                 case "📊 View running processes (WMI)":
-                    Tools_SubMenu.ViewProcessesWMI.Show();
+                    AnsiConsole.MarkupLine("[yellow]→ Listing WMI processes...[/]");
+                    Tools_SubMenu.ViewProcessesWMI.Show(caseFolderPath, userId);
                     Show(caseId, userId, isNewCase);
                     break;
 
                 case "🛜 List network connections":
                     AnsiConsole.MarkupLine("[yellow]→ Listing network connections...[/]");
-                    ViewNetworkConnections.Show();
+                    ViewNetworkConnections.Show(caseFolderPath, userId);
                     Show(caseId, userId, isNewCase);
                     break;
 

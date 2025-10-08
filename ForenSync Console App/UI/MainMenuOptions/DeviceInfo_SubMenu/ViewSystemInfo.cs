@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-
 using Spectre.Console;
 using System.Management;
+using ForenSync.Utils;
 
 namespace ForenSync_Console_App.UI.MainMenuOptions.DeviceInfo_SubMenu
 {
     public static class ViewSystemInfo
     {
-        public static void Show()
+        public static void Show(string currentCasePath, string userId)
         {
             Console.Clear();
             AsciiTitle.Render("System Information");
@@ -22,51 +20,54 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.DeviceInfo_SubMenu
                 .AddColumn("[blue]Property[/]")
                 .AddColumn("[green]Value[/]");
 
+            var sb = new StringBuilder();
+
             try
             {
                 // Computer System
                 foreach (var sys in new ManagementObjectSearcher("SELECT * FROM Win32_ComputerSystem").Get())
                 {
-                    table.AddRow("Machine Name", sys["Name"]?.ToString() ?? "N/A");
-                    table.AddRow("Manufacturer", sys["Manufacturer"]?.ToString() ?? "N/A");
-                    table.AddRow("Model", sys["Model"]?.ToString() ?? "N/A");
-                    table.AddRow("System Type", sys["SystemType"]?.ToString() ?? "N/A");
-                    table.AddRow("Total Physical Memory", FormatBytes(sys["TotalPhysicalMemory"]?.ToString()));
+                    AddRow(table, sb, "Machine Name", sys["Name"]);
+                    AddRow(table, sb, "Manufacturer", sys["Manufacturer"]);
+                    AddRow(table, sb, "Model", sys["Model"]);
+                    AddRow(table, sb, "System Type", sys["SystemType"]);
+                    AddRow(table, sb, "Total Physical Memory", FormatBytes(sys["TotalPhysicalMemory"]?.ToString()));
                 }
 
                 // Operating System
                 foreach (var os in new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem").Get())
                 {
-                    table.AddRow("OS Name", os["Caption"]?.ToString() ?? "N/A");
-                    table.AddRow("Version", os["Version"]?.ToString() ?? "N/A");
-                    table.AddRow("Architecture", os["OSArchitecture"]?.ToString() ?? "N/A");
-                    table.AddRow("Install Date", FormatDate(os["InstallDate"]?.ToString()));
-                    table.AddRow("Last Boot Time", FormatDate(os["LastBootUpTime"]?.ToString()));
-                    table.AddRow("System Uptime", FormatUptime(os["LastBootUpTime"]?.ToString()));
+                    AddRow(table, sb, "OS Name", os["Caption"]);
+                    AddRow(table, sb, "Version", os["Version"]);
+                    AddRow(table, sb, "Architecture", os["OSArchitecture"]);
+                    AddRow(table, sb, "Install Date", FormatDate(os["InstallDate"]?.ToString()));
+                    AddRow(table, sb, "Last Boot Time", FormatDate(os["LastBootUpTime"]?.ToString()));
+                    AddRow(table, sb, "System Uptime", FormatUptime(os["LastBootUpTime"]?.ToString()));
                 }
 
                 // Processor
                 foreach (var cpu in new ManagementObjectSearcher("SELECT * FROM Win32_Processor").Get())
                 {
-                    table.AddRow("CPU Name", cpu["Name"]?.ToString() ?? "N/A");
-                    table.AddRow("Cores", cpu["NumberOfCores"]?.ToString() ?? "N/A");
-                    table.AddRow("Logical Processors", cpu["NumberOfLogicalProcessors"]?.ToString() ?? "N/A");
-                    table.AddRow("Architecture", cpu["Architecture"]?.ToString() ?? "N/A");
+                    AddRow(table, sb, "CPU Name", cpu["Name"]);
+                    AddRow(table, sb, "Cores", cpu["NumberOfCores"]);
+                    AddRow(table, sb, "Logical Processors", cpu["NumberOfLogicalProcessors"]);
+                    AddRow(table, sb, "Architecture", cpu["Architecture"]);
                 }
 
                 // BIOS
                 foreach (var bios in new ManagementObjectSearcher("SELECT * FROM Win32_BIOS").Get())
                 {
-                    table.AddRow("BIOS Version", string.Join(", ", (string[])bios["BIOSVersion"] ?? new string[] { "N/A" }));
-                    table.AddRow("BIOS Vendor", bios["Manufacturer"]?.ToString() ?? "N/A");
-                    table.AddRow("BIOS Release Date", FormatDate(bios["ReleaseDate"]?.ToString()));
+                    var biosVersion = string.Join(", ", (string[])bios["BIOSVersion"] ?? new string[] { "N/A" });
+                    AddRow(table, sb, "BIOS Version", biosVersion);
+                    AddRow(table, sb, "BIOS Vendor", bios["Manufacturer"]);
+                    AddRow(table, sb, "BIOS Release Date", FormatDate(bios["ReleaseDate"]?.ToString()));
                 }
 
                 // Motherboard
                 foreach (var board in new ManagementObjectSearcher("SELECT * FROM Win32_BaseBoard").Get())
                 {
-                    table.AddRow("Motherboard Manufacturer", board["Manufacturer"]?.ToString() ?? "N/A");
-                    table.AddRow("Product", board["Product"]?.ToString() ?? "N/A");
+                    AddRow(table, sb, "Motherboard Manufacturer", board["Manufacturer"]);
+                    AddRow(table, sb, "Product", board["Product"]);
                 }
 
                 AnsiConsole.Write(new Panel(table)
@@ -80,8 +81,21 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.DeviceInfo_SubMenu
                 AnsiConsole.MarkupLine($"[red]❌ Failed to retrieve system info: {ex.Message}[/]");
             }
 
-            AnsiConsole.MarkupLine("\n[grey]Press any key to return to Device Info menu...[/]");
-            Console.ReadKey(true);
+            AnsiConsole.MarkupLine("\n[green][[S]][/]: Save snapshot   [green][[Esc]][/]: Return to Device Info");
+
+            var key = EvidenceWriter.TryReadKey();
+            if (key?.Key == ConsoleKey.S)
+            {
+                EvidenceWriter.SaveToEvidence(currentCasePath, sb.ToString(), "system_info_snapshot");
+                AuditLogger.Log(userId, AuditAction.ExportedSnapshot, "Saved: system_info_snapshot");
+            }
+        }
+
+        private static void AddRow(Table table, StringBuilder sb, string label, object value)
+        {
+            string val = value?.ToString() ?? "N/A";
+            table.AddRow(label, val);
+            sb.AppendLine($"{label}: {val}");
         }
 
         private static string FormatBytes(string rawBytes)
