@@ -14,7 +14,10 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
         {
             Console.Clear();
             AsciiTitle.Render("ForenSync");
-            string caseFolderPath = Path.Combine(AppContext.BaseDirectory, "Cases", caseId);
+            string caseFolderPath = string.IsNullOrWhiteSpace(caseId)
+                ? null
+                : Path.Combine(AppContext.BaseDirectory, "Cases", caseId);
+
             if (isNewCase) // Show summary only for new cases 
             {
                 Console.WriteLine("🆕 Starting New Case\n");
@@ -102,13 +105,13 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
                     break;
 
                 case "👤 List user accounts":
-                    DeviceInfo_SubMenu.ViewUserAccounts.Show();
+                    DeviceInfo_SubMenu.ViewUserAccounts.Show(caseFolderPath, userId);
                     Show(caseId, userId, isNewCase);
                     break;
 
                 case "ℹ️ View installed applications":
                     AnsiConsole.MarkupLine("[yellow]→ Fetching installed applications...[/]");
-                    DeviceInfo_SubMenu.ViewInstalledApps.Show();
+                    DeviceInfo_SubMenu.ViewInstalledApps.Show(caseFolderPath, userId);
                     Show(caseId, userId, isNewCase);
                     break;
 

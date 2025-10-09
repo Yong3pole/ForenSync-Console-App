@@ -2,18 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-
 using Spectre.Console;
 using System.Management;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using ForenSync.Utils;
 
 namespace ForenSync_Console_App.UI.MainMenuOptions.DeviceInfo_SubMenu
 {
     public static class ViewUserAccounts
     {
-        public static void Show()
+        public static void Show(string currentCasePath, string userId)
         {
             Console.Clear();
             AsciiTitle.Render("User Accounts");
@@ -28,6 +27,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.DeviceInfo_SubMenu
                 .AddColumn("[magenta]Last Login[/]")
                 .AddColumn("[grey]Groups[/]");
 
+            var sb = new StringBuilder();
             int enabledCount = 0;
             int disabledCount = 0;
 
@@ -53,6 +53,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.DeviceInfo_SubMenu
                         : "None";
 
                     table.AddRow(username, fullName, status, passwordExpires, lastLogin, groups);
+                    sb.AppendLine($"{username} | {fullName} | {(disabled ? "Disabled" : "Enabled")} | Password Expires: {passwordExpires} | Last Login: {lastLogin} | Groups: {groups}");
                 }
 
                 AnsiConsole.Write(new Panel(table)
@@ -69,14 +70,32 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.DeviceInfo_SubMenu
                     .UseValueFormatter(v => $"{v:N0} accounts")
                     .AddItem("Enabled", enabledCount, Color.Green)
                     .AddItem("Disabled", disabledCount, Color.Red));
+
+                sb.AppendLine($"\nEnabled Accounts: {enabledCount}");
+                sb.AppendLine($"Disabled Accounts: {disabledCount}");
             }
             catch (Exception ex)
             {
                 AnsiConsole.MarkupLine($"[red]❌ Failed to retrieve user accounts: {ex.Message}[/]");
             }
 
-            AnsiConsole.MarkupLine("\n[grey]Press any key to return to Device Info menu...[/]");
-            Console.ReadKey(true);
+            AnsiConsole.MarkupLine("\n[green][[S]][/]: Save snapshot   [green][[Esc]][/]: Return to Device Info");
+
+            var key = EvidenceWriter.TryReadKey();
+            if (key?.Key == ConsoleKey.S)
+            {
+                if (string.IsNullOrWhiteSpace(currentCasePath))
+                {
+                    AnsiConsole.MarkupLine("\n[red]⚠️ No active case detected. This session is not linked to any case.[/]");
+                    AnsiConsole.MarkupLine("[grey]Press [bold]Enter[/] to return to Device Info.[/]");
+                    Console.ReadKey(true);
+                    DeviceInfo.Show(null, userId, false);
+                    return;
+                }
+
+                EvidenceWriter.SaveToEvidence(currentCasePath, sb.ToString(), "user_accounts_snapshot");
+                AuditLogger.Log(userId, AuditAction.ExportedSnapshot, "Saved: user_accounts_snapshot");
+            }
         }
 
         private static Dictionary<string, List<string>> BuildGroupMembership()

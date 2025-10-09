@@ -14,9 +14,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu
             Console.Clear();
             AsciiTitle.Render("ForenSync");
 
-            Console.WriteLine($"[debug] currentCasePath: {currentCasePath}");
-
-            var sb = new StringBuilder(); // Capture output for saving
+            var sb = new StringBuilder();
             var processes = Process.GetProcesses().OrderBy(p => p.ProcessName).ToList();
 
             // Bar Chart
@@ -53,17 +51,21 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu
 
             AnsiConsole.MarkupLine("\n[green][[S]][/]: Save snapshot   [green][[Esc]][/]: Return to Tools");
 
-            Console.WriteLine($"[debug] snapshot content length: {sb.Length}");
-
             var key = EvidenceWriter.TryReadKey();
-            Console.WriteLine($"[debug] key: {key?.Key}");
 
             if (key?.Key == ConsoleKey.S)
             {
-                Console.WriteLine("[debug] S key detected. Attempting to save snapshot...");
+                if (string.IsNullOrWhiteSpace(currentCasePath))
+                {
+                    AnsiConsole.MarkupLine("\n[red]⚠️ No active case detected. This session is not linked to any case.[/]");
+                    AnsiConsole.MarkupLine("[grey]Press [bold]Enter[/] to return to Tools.[/]");
+                    Console.ReadKey(true);
+                    Tools.Show(null, userId, false);
+                    return;
+                }
+
                 EvidenceWriter.SaveToEvidence(currentCasePath, sb.ToString(), "running_process_snapshot");
                 AuditLogger.Log(userId, AuditAction.ExportedSnapshot, "Saved: running_process_snapshot");
-
             }
         }
     }
@@ -74,8 +76,6 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu
         {
             Console.Clear();
             AsciiTitle.Render("ForenSync");
-
-            Console.WriteLine($"[debug] currentCasePath: {currentCasePath}");
 
             var sb = new StringBuilder();
             var table = new Table().RoundedBorder().AddColumn("PID").AddColumn("Name").AddColumn("Command Line").AddColumn("Parent PID");
@@ -105,17 +105,21 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu
 
             AnsiConsole.MarkupLine("\n[green][[S]][/]: Save snapshot   [green][[Esc]][/]: Return to Tools");
 
-            Console.WriteLine($"[debug] snapshot content length: {sb.Length}");
-
             var key = EvidenceWriter.TryReadKey();
-            Console.WriteLine($"[debug] key: {key?.Key}");
 
             if (key?.Key == ConsoleKey.S)
             {
-                Console.WriteLine("[debug] S key detected. Attempting to save WMI snapshot...");
-                EvidenceWriter.SaveToEvidence(currentCasePath, sb.ToString(), "wmi_running_process_snapshot");
-                AuditLogger.Log(userId, AuditAction.ExportedSnapshot, "Saved: running_process_snapshot");
+                if (string.IsNullOrWhiteSpace(currentCasePath))
+                {
+                    AnsiConsole.MarkupLine("\n[red]⚠️ No active case detected. This session is not linked to any case.[/]");
+                    AnsiConsole.MarkupLine("[grey]Press [bold]Enter[/] to return to Tools.[/]");
+                    Console.ReadKey(true);
+                    Tools.Show(null, userId, false);
+                    return;
+                }
 
+                EvidenceWriter.SaveToEvidence(currentCasePath, sb.ToString(), "wmi_running_process_snapshot");
+                AuditLogger.Log(userId, AuditAction.ExportedSnapshot, "Saved: wmi_running_process_snapshot");
             }
         }
     }

@@ -3,27 +3,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using System.Numerics;
 using System.Text;
-using System.Threading.Tasks;
-
-using Spectre.Console;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Management;
+using ForenSync.Utils;
 
 namespace ForenSync_Console_App.UI.MainMenuOptions.DeviceInfo_SubMenu
 {
     public static class ViewInstalledApps
     {
-        public static void Show()
+        public static void Show(string currentCasePath, string userId)
         {
             Console.Clear();
             AsciiTitle.Render("Installed Applications");
 
             var apps = new List<ManagementObject>();
+            var sb = new StringBuilder();
             int appCount = 0;
+
+            AuditLogger.Log(userId, AuditAction.ViewUserConfig, "Viewed: installed_applications");
 
             AnsiConsole.Status()
                 .Spinner(Spinner.Known.Dots)
@@ -45,6 +41,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.DeviceInfo_SubMenu
                     catch (Exception ex)
                     {
                         AnsiConsole.MarkupLine($"[red]❌ Failed to retrieve installed applications: {ex.Message}[/]");
+                        AuditLogger.Log(userId, AuditAction.ViewUserConfig, $"Failed to retrieve installed applications: {ex.Message}");
                     }
                 });
 
@@ -94,6 +91,7 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.DeviceInfo_SubMenu
                 string installDate = FormatDate(app["InstallDate"]?.ToString());
 
                 table.AddRow(name, version, vendor, installDate);
+                sb.AppendLine($"{name} | {version} | {vendor} | Installed: {installDate}");
             }
 
             AnsiConsole.Write(new Panel(table)
@@ -102,8 +100,23 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.DeviceInfo_SubMenu
                 .Padding(1, 1)
                 .BorderStyle(new Style(Color.Blue)));
 
-            AnsiConsole.MarkupLine("\n[grey]Press any key to return to Device Info menu...[/]");
-            Console.ReadKey(true);
+            AnsiConsole.MarkupLine("\n[green][[S]][/]: Save snapshot   [green][[Esc]][/]: Return to Device Info");
+
+            var key = EvidenceWriter.TryReadKey();
+            if (key?.Key == ConsoleKey.S)
+            {
+                if (string.IsNullOrWhiteSpace(currentCasePath))
+                {
+                    AnsiConsole.MarkupLine("\n[red]⚠️ No active case detected. This session is not linked to any case.[/]");
+                    AnsiConsole.MarkupLine("[grey]Press [bold]Enter[/] to return to Device Info.[/]");
+                    Console.ReadKey(true);
+                    DeviceInfo.Show(null, userId, false);
+                    return;
+                }
+
+                EvidenceWriter.SaveToEvidence(currentCasePath, sb.ToString(), "user_accounts_snapshot");
+                AuditLogger.Log(userId, AuditAction.ExportedSnapshot, "Saved: user_accounts_snapshot");
+            }
         }
 
         private static string FormatDate(string raw)

@@ -16,15 +16,9 @@ namespace ForenSync_Console_App.UI.MainMenuOptions
             Console.Clear();
             AsciiTitle.Render("ForenSync");
 
-            if (string.IsNullOrWhiteSpace(caseId))
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("❌ Case ID is missing or invalid.");
-                Console.ResetColor();
-                return;
-            }
-
-            string caseFolderPath = Path.Combine(AppContext.BaseDirectory, "Cases", caseId);
+            string caseFolderPath = string.IsNullOrWhiteSpace(caseId)
+                ? null
+                : Path.Combine(AppContext.BaseDirectory, "Cases", caseId);
 
             if (isNewCase) // Show summary only for new cases 
             {

@@ -86,6 +86,15 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.DeviceInfo_SubMenu
             var key = EvidenceWriter.TryReadKey();
             if (key?.Key == ConsoleKey.S)
             {
+                if (string.IsNullOrWhiteSpace(currentCasePath))
+                {
+                    AnsiConsole.MarkupLine("\n[red]⚠️ No active case detected. This session is not linked to any case.[/]");
+                    AnsiConsole.MarkupLine("[grey]Press [bold]Enter[/] to return to Device Info.[/]");
+                    Console.ReadKey(true);
+                    DeviceInfo.Show(null, userId, false);
+                    return;
+                }
+
                 EvidenceWriter.SaveToEvidence(currentCasePath, sb.ToString(), "system_info_snapshot");
                 AuditLogger.Log(userId, AuditAction.ExportedSnapshot, "Saved: system_info_snapshot");
             }

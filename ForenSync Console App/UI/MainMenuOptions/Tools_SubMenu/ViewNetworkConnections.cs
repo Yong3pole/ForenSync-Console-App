@@ -89,34 +89,25 @@ namespace ForenSync_Console_App.UI.MainMenuOptions.Tools_SubMenu
                 .BorderStyle(new Style(Color.Blue)));
 
             // Snapshot logic
-            if (string.IsNullOrWhiteSpace(currentCasePath))
+            AnsiConsole.MarkupLine("\n[green][[S]][/]: Save snapshot   [green][[Esc]][/]: Return to Tools");
+
+            var key = EvidenceWriter.TryReadKey();
+
+            if (key?.Key == ConsoleKey.S)
             {
-                AnsiConsole.MarkupLine("\n[red]❌ No active case selected. Press [bold]Esc[/] to return.[/]");
-                while (true)
+                if (string.IsNullOrWhiteSpace(currentCasePath))
                 {
-                    var fallbackKey = Console.ReadKey(true);
-                    if (fallbackKey.Key == ConsoleKey.Escape)
-                    {
-                        Tools.Show(null, null, false); // Replace with actual context if available
-                        return;
-                    }
+                    AnsiConsole.MarkupLine("\n[red]⚠️ No active case detected. This session is not linked to any case.[/]");
+                    AnsiConsole.MarkupLine("[grey]Press [bold]Enter[/] to return to Tools.[/]");
+                    Console.ReadKey(true);
+                    Tools.Show(null, userId, false);
+                    return;
                 }
+
+                EvidenceWriter.SaveToEvidence(currentCasePath, sb.ToString(), "network_connections");
+                AuditLogger.Log(userId, AuditAction.ExportedSnapshot, "Saved: network_connections");
             }
-            else
-            {
-                AnsiConsole.MarkupLine("\n[green][[S]][/]: Save snapshot   [green][[Esc]][/]: Return to Tools");
 
-                var key = EvidenceWriter.TryReadKey();
-                Console.WriteLine($"[debug] key: {key?.Key}");
-
-                if (key?.Key == ConsoleKey.S)
-                {
-                    Console.WriteLine("[debug] S key detected. Attempting to save network snapshot...");
-                    EvidenceWriter.SaveToEvidence(currentCasePath, sb.ToString(), "network_connections");
-                    AuditLogger.Log(userId, AuditAction.ExportedSnapshot, "Saved: network_connections");
-
-                }
-            }
         }
     }
 }
